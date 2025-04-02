@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
   return (
     <footer >
       <div className="container mx-auto">
-        <form action=""  className="text-center relative top-[-103px]">
+        <form action=""  className="text-center relative top-[-54px]">
           <div className="form-title">Nhận thông tin của chúng tôi</div>
           <span className="form-title_sub">ĐĂNG KÝ NHẬN BẢN TIN ĐỂ NHẬN ƯU ĐÃI ĐẶC BIỆT VÀ TIN TỨC ĐỘC QUYỀN VỀ CÁC SẢN PHẨM BINOVA</span>
           <label className="contact-form pr-0" htmlFor="sub" >

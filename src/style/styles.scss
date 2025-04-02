@@ -75,6 +75,8 @@ header {
     position: sticky;
     top: 0;
     background: variables.$white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+
     .bag-light{
         display: none;
     }
@@ -88,12 +90,36 @@ header {
             color: variables.$green;
         }
     }
-
-    .right-item {
-        * {
-            color: variables.$white;
+    .right-item{
+        *{
+            color: variables.$black;
         }
     }
+    .header-icon::before {
+        background: #000;
+    }
+    &::before{
+        content: "";
+        position: absolute;
+        height: 100%;
+        width: 326px;
+        background: #000;
+        left: 0;
+    }
+    &::after{
+        content: "";
+        position: absolute;
+        height: 100%;
+        width: 80px;
+        background: variables.$green;
+        top: 0;left: 326px;
+    }
+
+    // .right-item {
+    //     * {
+    //         color: variables.$white;
+    //     }
+    // }
 
     &.active {
         position: absolute;
@@ -327,8 +353,8 @@ header {
 //footer
 footer {
     position: relative;
-    background: #00305B;
-    padding-top: 200px;
+    background: hsl(208, 100%, 18%);
+    padding-top: 149px;
 
     &::before {
         content: "";
