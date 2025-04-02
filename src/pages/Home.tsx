@@ -1,7 +1,28 @@
 import React from "react";
-
+import { Carousel } from 'antd';
+import ImageSlide from '../assets/image/slideshow-1_1920x 1.jpg'
 const Home: React.FC = () => {
-  return <h1>Trang chủ</h1>;
+
+  const banner = [
+    { name: "HAGAN CORE TF LIGHT TOURING", slogan: "SKI BOOT LINERS" },
+    { name: "HAGAN CORE TF LIGHT TOURING", slogan: "SKI BOOT LINERS" }
+  ]
+
+  return (
+    <Carousel >
+      {
+        banner.map((item) => (
+          <div className="banner-item">
+            <img src={ImageSlide} />
+            <div className="slogan">
+              <p>{item.name}</p>
+              <span>{item.slogan}</span>
+            </div>
+          </div>
+        ))
+      }
+    </Carousel>
+  );
 };
 
 export default Home;

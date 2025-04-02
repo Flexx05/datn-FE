@@ -1,15 +1,39 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Logo from '../assets/image/logo.png'
+import Bag from '../assets/image/bag.svg'
 
-const Header: React.FC = () => {
+import { SearchOutlined, UserOutlined } from "@ant-design/icons";
+
+interface HeaderProps {
+  isHome: boolean;
+  isPage : String;
+}
+
+const Header: React.FC<HeaderProps> = ({ isHome , isPage }) => {
   return (
-    <header style={{ padding: "10px", background: "#333", color: "#fff" }}>
-      <nav>
-        <ul style={{ display: "flex", gap: "15px", listStyle: "none" }}>
-          <li><Link to="/" style={{ color: "white", textDecoration: "none" }}>Trang chủ</Link></li>
-          <li><Link to="/about" style={{ color: "white", textDecoration: "none" }}>Giới thiệu</Link></li>
-        </ul>
-      </nav>
+    <header className={isHome ? 'active' : ''}>
+      <div className="container mx-auto">
+        <div className="flex">
+          <a href="/" className="w-4/12">
+            <img src={Logo} alt="" className='logo' />
+          </a>
+          <ul className='ul-menu w-8/12'>
+            <li>
+              <Link to="/" className={isPage === '/' ? 'active': ''} >Trang chủ</Link>
+            </li>
+            <li><a href="">Giới thiệu</a></li>
+            <li><a href="">Sản phẩm</a></li>
+            <li><a href="">Tin tức</a></li>
+            <li><a href="">Liên hệ</a></li>
+            <li className='right-item'>
+              <div className='header-icon'><a href=""><SearchOutlined /></a></div>
+              <div className='header-icon'><a href=""><UserOutlined /></a></div>
+              <div className='header-icon'><a href="" className='cart-icon' data-count="10"><img src={Bag} alt="" /><small className='cart-sml'>Giỏ hàng</small></a></div>
+            </li>
+          </ul>
+        </div>
+      </div>
     </header>
   );
 };

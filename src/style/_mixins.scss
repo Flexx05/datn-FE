@@ -1,0 +1,186 @@
+@mixin letterSpacing($value, $value2) {
+    .slick-slide {
+        margin: 0 $value;
+    }
+
+    .slick-list {
+        margin: 0 $value2;
+    }
+}
+
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+@mixin maxWidth($value) {
+    @media (max-width: $value) {
+        @content;
+    }
+}
+
+
+@mixin item-center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@mixin before($width, $height) {
+    content: '';
+    position: absolute;
+    width: $width;
+    height: $height;
+}
+
+@mixin flex-item($content, $align) {
+    display: flex;
+    justify-content: $content;
+    align-items: $align;
+}
+
+@mixin text-center {
+    left: 50%;
+    transform: translateX(-50%)
+}
+
+
+
+
+@mixin truncate($value) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: $value;
+}
+
+@mixin vertical-center {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@mixin horizontal-center {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+//
+
+@font-face {
+    font-family: "Roboto-Black";
+    font-display: swap;
+    src: url(../assets/font/Roboto-Black.ttf);
+}
+
+@font-face {
+    font-family: "Roboto-Bold";
+    font-display: swap;
+    src: url(../assets/font/Roboto-Bold.ttf);
+}
+
+@font-face {
+    font-family: "Roboto-Condensed";
+    font-display: swap;
+    src: url(../assets/font/Roboto-Condensed.ttf);
+}
+
+@font-face {
+    font-family: "Roboto-italic";
+    font-display: swap;
+    src: url(../assets/font/Roboto-Italic.ttf);
+}
+
+@font-face {
+    font-family: "Roboto-Light";
+    font-display: swap;
+    src: url(../assets/font/Roboto-Light.ttf);
+}
+
+@font-face {
+    font-family: "Roboto-Medium";
+    font-display: swap;
+    src: url(../assets/font/Roboto-Medium.ttf);
+}
+
+@font-face {
+    font-family: "Roboto-Regular";
+    font-display: swap;
+    src: url(../assets/font/Roboto-Regular.ttf);
+}
+
+@font-face {
+    font-family: "Roboto-Thin";
+    font-display: swap;
+    src: url(../assets/font/Roboto-Thin.ttf);
+}
+
+@font-face {
+    font-family: "UTM-Neo-Sans-Intel";
+    font-display: swap;
+    src: url(../assets/font/UTM-Neo-Sans-Intel.ttf);
+}
+
+@font-face {
+    font-family: "UTM-Neo-Sans-IntelBold";
+    font-display: swap;
+    src: url(../assets/font/UTM-Neo-Sans-IntelBold.ttf);
+}
+
+@font-face {
+    font-family: "UTM-Neo-Sans-IntelBold_Italic";
+    font-display: swap;
+    src: url(../assets/font/UTM-Neo-Sans-IntelBold_Italic.ttf);
+}
+
+@font-face {
+    font-family: "UTM-Neo-Sans-Intel_Italic";
+    font-display: swap;
+    src: url(../assets/font/UTM-Neo-Sans-Intel_Italic.ttf);
+}
+//
+
+@mixin Roboto-Black {
+    font-family: "Roboto-Black";
+}
+
+@mixin Roboto-Bold {
+    font-family: "Roboto-Bold";
+}
+
+@mixin Roboto-Condensed {
+    font-family: "Roboto-Condensed";
+}
+
+@mixin Roboto-italic {
+    font-family: "Roboto-italic";
+}
+
+@mixin Roboto-Medium {
+    font-family: "Roboto-Medium";
+}
+
+@mixin Roboto-Regular {
+    font-family: "Roboto-Regular";
+}
+
+@mixin Roboto-Thin {
+    font-family: "Roboto-Thin";
+}
+
+@mixin UTM-Neo-Sans-Intel {
+    font-family: "UTM-Neo-Sans-Intel";
+}
+
+@mixin UTM-Neo-Sans-IntelBold {
+    font-family: "UTM-Neo-Sans-IntelBold";
+}
+
+@mixin UTM-Neo-Sans-IntelBold_Italic {
+    font-family: "UTM-Neo-Sans-IntelBold_Italic";
+}
+
+@mixin UTM-Neo-Sans-Intel_Italic {
+    font-family: "UTM-Neo-Sans-Intel_Italic";
+}

@@ -1,0 +1,261 @@
+@use './variables';
+@use './mixins';
+
+//
+
+//
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+}
+
+body {
+    background: variables.$white;
+    top: 0 !important;
+}
+
+a:not([href]):not([class]) {
+    color: #333;
+    text-decoration: none;
+}
+
+a:not([href]):not([class]):hover {
+    color: #333;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 1300px;
+
+    @include mixins.maxWidth(1366px) {
+        max-width: 1230px;
+    }
+
+    @include mixins.maxWidth(1100px) {
+        max-width: 980px;
+    }
+
+    @include mixins.maxWidth(768px) {
+        max-width: 742px;
+    }
+}
+
+a,
+a:hover {
+    text-decoration: none;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.ul-reset {
+    padding: 0;
+    margin: 0;
+
+    li {
+        list-style: none;
+    }
+}
+
+button {
+    outline: none;
+    border: 0;
+    background: none;
+}
+
+input {
+    border: 0;
+    outline: none;
+}
+
+header {
+    width: 100%;
+    z-index: 9;
+    position: sticky;
+    top: 0;
+    background: variables.$white;
+
+    .ul-menu>li>a {
+        color: variables.$black;
+        &.active{
+            color: variables.$green;
+        }
+    }
+
+    .right-item {
+        * {
+            color: variables.$white;
+        }
+    }
+
+    &.active {
+        position: fixed;
+        background: none;
+
+        .ul-menu {
+            * {
+                color: variables.$white;
+            }
+        }
+    }
+}
+
+.logo {
+    width: 100px;
+    height: 80px;
+    object-fit: contain;
+}
+
+.cart-sml {
+    display: block;
+    margin-left: 10px;
+}
+
+.custom-icon {
+    margin-left: 5px;
+}
+
+.ul-menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    >li {
+        position: relative;
+
+        >a {
+            color: variables.$white;
+            // @include mixins.Roboto-Medium;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        &:hover {
+            .sub-menu {
+                visibility: visible;
+                opacity: 1;
+                transition: all .2s ease-out;
+                transform: translate(0, 50%);
+            }
+        }
+    }
+}
+
+.banner-item {
+    img {
+        width: 100%;
+        height: 100vh;
+        object-fit: cover;
+    }
+}
+
+.slogan {
+    position: absolute;
+    z-index: 1;
+    @include mixins.item-center;
+
+    // * {
+    //     transition: all .5s;
+    // }
+
+    p {
+        @include mixins.Roboto-Black;
+        font-size: 35px;
+        color: variables.$white;
+        text-align: right;
+        margin-bottom: 0;
+        transform: translateX(100px);
+        opacity: .5;
+
+        &.active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    span {
+        font-size: 113px;
+        display: block;
+        width: max-content;
+        color: variables.$white;
+        @include mixins.Roboto-Black;
+        text-align: left;
+        text-shadow: 0px 1px #c3c0c0;
+        transform: translateX(-100px);
+        opacity: .3;
+
+        &.active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+}
+
+.header-icon {
+    span {
+        font-size: 20px;
+    }
+}
+
+.cart-icon {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    &::before {
+        content: attr(data-count);
+        position: absolute;
+        width: 17px;
+        height: 17px;
+        border-radius: 50%;
+        @include mixins.flex-center;
+        color: #fff;
+        background: variables.$green;
+        font-size: 10px;
+        left: 10px;
+        bottom: -7px;
+    }
+}
+
+.right-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    // width: 240px;
+
+    * {
+        text-transform: uppercase;
+        color: variables.$white;
+    }
+
+}
+
+.header-icon {
+    position: relative;
+    padding: 0 15px;
+
+    &:first-child {
+        padding-left: 0;
+    }
+
+    img {
+        width: 24px;
+        height: 24px;
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        width: 1px;
+        left: 0;
+        height: 22px;
+        background: variables.$white;
+    }
+
+    &:first-child {
+        &::before {
+            display: none;
+        }
+    }
+}
