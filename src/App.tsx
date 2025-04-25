@@ -7,6 +7,7 @@ import AuthLayout from "./layouts/AuthLayout";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import { ForgotPassword } from "./pages/ForgotPassword";
+import  ProductCategory  from "./pages/ProductCategory";
 
 
 const App: React.FC = () => {
@@ -16,6 +17,7 @@ const App: React.FC = () => {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/products" element={< ProductCategory />} />
         </Route>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
