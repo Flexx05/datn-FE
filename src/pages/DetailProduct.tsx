@@ -71,7 +71,7 @@ export default function DetailProduct() {
               <h1 className="text-2xl font-bold mb-2">Diamond Halo Stud Aenean</h1>
 
               <div className="flex items-center mb-4">
-                <Rate disabled defaultValue={0} />
+                <Rate disabled defaultValue={4} />
               </div>
 
               <div className="text-3xl font-bold text-green-700 mb-4">$552.00</div>
@@ -254,7 +254,10 @@ export default function DetailProduct() {
                   </div>
                   <div className="text-sm">
                     <p className="leading-tight">{product.title}</p>
-                    <p className="text-xs text-gray-500 mt-1">25/04/2025</p>
+                    <div className="flex items-center ">
+                     <Rate disabled defaultValue={3} />
+                     </div>
+                    <p className="text-l text-black ">$552.00</p>
                   </div>
                 </div>
               ))}
