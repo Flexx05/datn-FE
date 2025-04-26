@@ -248,7 +248,7 @@ export default function ProductCategory() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {products.map((product) => (
               <div key={product.id} className="bg-white min-h-[400px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="relative w-full ">
+                <div className="relative w-full h-80 overflow-hidden">
                   <Image
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}

@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import  ProductCategory  from "./pages/ProductCategory";
 import  DetailProduct  from "./pages/DetailProduct";
+import  DetailCart  from "./pages/DetailCart";
 
 
 const App: React.FC = () => {
@@ -20,6 +21,7 @@ const App: React.FC = () => {
           <Route path="/about" element={<About />} />
           <Route path="/products" element={< ProductCategory />} />
           <Route path="/products/detail" element={< DetailProduct />} />
+          <Route path="/products/cart" element={< DetailCart />} />
         </Route>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />

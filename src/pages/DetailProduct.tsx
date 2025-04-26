@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, InputNumber, Tabs, Radio, Rate, Image, Layout } from "antd";
-import { ShoppingCartOutlined, HeartOutlined, ShareAltOutlined, ShoppingOutlined } from "@ant-design/icons";
+import { ShoppingCartOutlined, HeartOutlined, ShareAltOutlined, ShoppingOutlined, HeartFilled } from "@ant-design/icons";
 import rectangle3 from '../assets/image/Rectangle 3.png';
 import rectangle4 from '../assets/image/Rectangle 4.png';
 import rectangle1 from '../assets/image/Rectangle 1.png';
@@ -19,6 +19,7 @@ export default function DetailProduct() {
   const [size, setSize] = useState<number>(36);
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [liked, setLiked] = useState<boolean>(false);
 
   const colors = [
     { value: "blue", color: "bg-blue-600" },
@@ -140,8 +141,9 @@ export default function DetailProduct() {
                 </Button>
                 <Button
                   size="large"
-                  icon={<HeartOutlined />}
+                  icon={liked ? <HeartFilled style={{ color: "red" }} /> : <HeartOutlined />}
                   className="border border-gray-300"
+                  onClick={() => setLiked(!liked)}  
                 />
               </div>
 
@@ -196,11 +198,11 @@ export default function DetailProduct() {
                 {[rectangle1, rectangle4, rectangle3].map((img, idx) => (
                   <div key={idx} className="border p-4 rounded-lg hover:shadow-lg transition">
 
-                    <div className="relative">
+                <div className="relative aspect-[7/6] overflow-hidden">
                       <Image
                         src={img}
                         alt={`Giày ${idx + 1}`}
-                        className="w-full h-auto rounded"
+                        className="w-full h-full object-cover rounded"
                       />
                       <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-bl-md rounded-tr-md">
                         Mới
