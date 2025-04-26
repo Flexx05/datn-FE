@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Layout, Select, Pagination, Tag, Image } from "antd"
+import { Layout, Select, Pagination, Image } from "antd"
 import rectangle1 from '../assets/image/Rectangle 1.png'
 import rectangle2 from '../assets/image/Rectangle 2.png'
 import rectangle3 from '../assets/image/Rectangle 3.png'
@@ -122,30 +122,33 @@ export default function ProductCategory() {
 
   return (
 
-    <Layout className="min-h-screen bg-white px-4 md:px-8 lg:px-11 py-6">
+    <Layout className="min-h-screen bg-white px-4 md:px-8 lg:px-11 py-6 font-roboto">
       <Layout>
         <Sider width={250} className="bg-white p-4 lg:mr-8 mb-6 lg:mb-0" breakpoint="lg" collapsedWidth="0">
           {/* Thư mục */}
-          <div className="mb-6">
-            <h2 className="text-base font-bold uppercase mb-1">THƯ MỤC</h2>
-            <div className="h-1 w-20 bg-orange-400 mb-4"></div>
-            <ul className="space-y-2">
-              {Array(5)
-                .fill(0)
-                .map((_, index) => {
-                  const key = `category-${index}`
-                  return (
-                    <li
-                      key={key}
-                      onClick={() => setSelectedCategory(key)}
-                      className={`flex justify-between items-center cursor-pointer px-2 py-1 rounded hover:bg-gray-100 ${selectedCategory === key ? "bg-gray-200 font-semibold" : ""
-                        }`}
-                    >
-                      <span>Tin khuyến mãi</span>
-                      <span className="text-gray-400 text-xs font-bold">+</span>
-                    </li>
-                  )
-                })}
+          <div className="mb-6 bg-gray-100 relative p-5">
+            <h2 className="text-base font-bold uppercase ">THƯ MỤC</h2>
+          {/* Thanh line */}
+            <div className="relative mb-4 ">
+              <div className="h-1 w-20 bg-orange-400"></div>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+            </div>
+
+            <ul className="divide-y divide-gray-200 w-full">
+              {Array(5).fill(0).map((_, index) => {
+                const key = `category-${index}`;
+                return (
+                  <li
+                    key={key}
+                    onClick={() => setSelectedCategory(key)}
+                    className={`flex justify-between items-center cursor-pointer px-2 py-3 transition-all duration-200 ${selectedCategory === key ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"
+                      }`}
+                  >
+                    <span className="text-gray-800 text-sm font-medium">Tin khuyến mãi</span>
+                    <span className="text-gray-400 text-base font-bold">+</span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -153,7 +156,11 @@ export default function ProductCategory() {
           {/* Sản phẩm mới ra mắt */}
           <div className="mb-6">
             <h2 className="text-base font-bold mb-4 ">Các sản phẩm mới ra mắt</h2>
-            <div className="h-1 w-20 bg-orange-400 mb-4"></div>
+            {/* Thanh line */}
+            <div className="relative mb-4 ">
+              <div className="h-1 w-20 bg-orange-400"></div>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+            </div>
             <div className="space-y-4 ">
               {featuredProducts.map((product) => (
                 <div key={product.id} className="flex space-x-2 border-b pb-2">
@@ -167,8 +174,8 @@ export default function ProductCategory() {
                     />
                   </div>
                   <div className="text-sm">
-                    <p className="leading-tight">{product.title}</p>
-                    <p className="text-xs text-gray-500 mt-1">25/04/2025</p>
+                    <a href="#" className="leading-tight block font-semibold text-black">{product.title}</a>
+                    <a href="#" className="block text-xs text-gray-500 mt-1">25/04/2025</a>
                   </div>
                 </div>
               ))}
@@ -178,15 +185,20 @@ export default function ProductCategory() {
           {/* Từ khóa */}
           <div>
             <h2 className="text-base font-bold mb-4 uppercase">TỪ KHÓA</h2>
-            <div className="h-1 w-20 bg-orange-400 mb-4"></div>
+            {/* Thanh line */}
+            <div className="relative mb-4 ">
+              <div className="h-1 w-20 bg-orange-400"></div>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+            </div>
             <div className="flex flex-wrap gap-2">
               {["Thể thao", "Xu hướng", "Trang trí", "Nam", "Nữ", "Giày thể thao", "Sport"].map((label) => (
-                <span
+                <a
                   key={label}
+                  href="#"
                   className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-700 cursor-pointer hover:bg-gray-100"
                 >
                   {label}
-                </span>
+                </a>
               ))}
             </div>
           </div>
@@ -195,7 +207,7 @@ export default function ProductCategory() {
 
 
         <Content className=" bg-white ">
-        <div className="bg-white p-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-y-4 md:gap-x-6">
+          <div className="bg-white p-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-y-4 md:gap-x-6">
             <div>
               <Select defaultValue="bestseller" style={{ width: 150 }} className="mr-4">
                 <Option value="bestseller">Bán chạy</Option>
@@ -236,25 +248,26 @@ export default function ProductCategory() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {products.map((product) => (
               <div key={product.id} className="bg-white min-h-[400px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="relative">
+                <div className="relative w-full ">
                   <Image
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-auto object-cover rounded"
+                    className="w-full h-full object-cover rounded"
                   />
                   <div className="absolute top-2 left-2 flex flex-col gap-1">
                     {product.isNew && (
-                      <Tag color="green" className="m-0 text-xs px-2 py-0.5 rounded">
+                      <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600">
                         MỚI
-                      </Tag>
+                      </span>
                     )}
                     {product.discount && (
-                      <Tag color="red" className="m-0 text-xs px-2 py-0.5 rounded">
+                      <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-red-500">
                         -{product.discount}%
-                      </Tag>
+                      </span>
                     )}
                   </div>
                 </div>
+                
                 <div className="p-4">
                   <h3 className="text-sm font-medium mb-2 truncate">{product.name}</h3>
                   <p className="text-red-500 font-bold">{product.price}</p>

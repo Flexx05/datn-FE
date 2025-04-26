@@ -39,7 +39,7 @@ export default function DetailProduct() {
   ];
 
   return (
-    <div className="container mx-auto max-w-7xl p-6">
+    <div className="container mx-auto max-w-7xl p-6 font-roboto">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Main content */}
         <div className="md:col-span-3">
@@ -118,6 +118,7 @@ export default function DetailProduct() {
                 <InputNumber
                   min={1}
                   max={10}
+                  type="number"
                   value={quantity}
                   onChange={(value) => setQuantity(value || 1)}
                 />
@@ -186,66 +187,80 @@ export default function DetailProduct() {
 
           {/* Sản phẩm cùng danh mục */}
           <div className="related-products mt-16">
-  <h2 className="text-2xl font-bold mb-6 border-b-2 border-orange-400 inline-block pb-2">
-    Sản phẩm cùng danh mục
-  </h2>
+            <h2 className="text-2xl font-bold mb-6 border-b-2 border-orange-400 inline-block pb-2">
+              Sản phẩm cùng danh mục
+            </h2>
 
-  <Image.PreviewGroup>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {[rectangle1, rectangle4, rectangle3].map((img, idx) => (
-        <div key={idx} className="border p-4 rounded-lg hover:shadow-lg transition">
-          <div className="relative">
-            <Image
-              src={img}
-              alt={`Giày ${idx + 1}`}
-              className="w-full rounded"
-            />
-            <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
-              Mới
-            </span>
-            <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
-              -36%
-            </span>
+            <Image.PreviewGroup>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {[rectangle1, rectangle4, rectangle3].map((img, idx) => (
+                  <div key={idx} className="border p-4 rounded-lg hover:shadow-lg transition">
+
+                    <div className="relative">
+                      <Image
+                        src={img}
+                        alt={`Giày ${idx + 1}`}
+                        className="w-full h-auto rounded"
+                      />
+                      <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-bl-md rounded-tr-md">
+                        Mới
+                      </span>
+                      <span className="absolute top-10 left-2 bg-red-500 text-white text-xs font-semibold px-1 py-1 rounded-bl-md rounded-tr-md">
+                        -36%
+                      </span>
+                    </div>
+
+                    <div className="mt-4">
+                      <h3 className="text-sm font-semibold">Giày Thể Thao Sneaker MULGATI HX483A</h3>
+                      <p className="text-black font-bold mt-1">100.000 VND</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Image.PreviewGroup>
           </div>
-          <div className="mt-4">
-            <h3 className="text-sm font-semibold">Giày Thể Thao Sneaker MULGATI HX483A</h3>
-            <p className="text-black font-bold mt-1">100.000 VND</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  </Image.PreviewGroup>
-</div>
 
         </div>
 
         {/* Sidebar */}
         <Sider width={250} className="bg-white p-4">
+
           {/* Thư mục */}
-          <div className="mb-6">
-            <h2 className="text-base font-bold uppercase mb-1">THƯ MỤC</h2>
-            <div className="h-1 w-20 bg-orange-400 mb-4"></div>
-            <ul className="space-y-2">
+          <div className="mb-6 bg-gray-100 relative p-5">
+            <h2 className="text-base font-bold uppercase ">THƯ MỤC</h2>
+
+            <div className="relative mb-4 ">
+              <div className="h-1 w-20 bg-orange-400"></div>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+            </div>
+
+            <ul className="divide-y divide-gray-200 w-full">
               {Array(5).fill(0).map((_, index) => {
                 const key = `category-${index}`;
                 return (
                   <li
                     key={key}
                     onClick={() => setSelectedCategory(key)}
-                    className={`flex justify-between items-center cursor-pointer px-2 py-1 rounded hover:bg-gray-100 ${selectedCategory === key ? "bg-gray-200 font-semibold" : ""}`}
+                    className={`flex justify-between items-center cursor-pointer px-2 py-3 transition-all duration-200 ${selectedCategory === key ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"
+                      }`}
                   >
-                    <span>Tin khuyến mãi</span>
-                    <span className="text-gray-400 text-xs font-bold">+</span>
+                    <span className="text-gray-800 text-sm font-medium">Tin khuyến mãi</span>
+                    <span className="text-gray-400 text-base font-bold">+</span>
                   </li>
                 );
               })}
             </ul>
           </div>
 
+
+
           {/* Sản phẩm mới */}
           <div className="mb-6">
             <h2 className="text-base font-bold mb-4">Các sản phẩm mới ra mắt</h2>
-            <div className="h-1 w-20 bg-orange-400 mb-4"></div>
+            <div className="relative mb-4 ">
+              <div className="h-1 w-20 bg-orange-400"></div>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+            </div>
             <div className="space-y-4">
               {featuredProducts.map((product) => (
                 <div key={product.id} className="flex space-x-2 border-b pb-2">
@@ -253,11 +268,11 @@ export default function DetailProduct() {
                     <Image src={product.image} alt={product.title} width={60} height={60} className="object-cover" />
                   </div>
                   <div className="text-sm">
-                    <p className="leading-tight">{product.title}</p>
+                    <a href="#" className="leading-tight">{product.title}</a>
                     <div className="flex items-center ">
-                     <Rate disabled defaultValue={3} />
-                     </div>
-                    <p className="text-l text-black ">$552.00</p>
+                      <Rate disabled defaultValue={3} />
+                    </div>
+                    <a href="#" className="text-l text-black ">$552.00</a>
                   </div>
                 </div>
               ))}
@@ -267,18 +282,23 @@ export default function DetailProduct() {
           {/* Từ khóa */}
           <div>
             <h2 className="text-base font-bold mb-4 uppercase">TỪ KHÓA</h2>
-            <div className="h-1 w-20 bg-orange-400 mb-4"></div>
+            <div className="relative mb-4 ">
+              <div className="h-1 w-20 bg-orange-400"></div>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+            </div>
             <div className="flex flex-wrap gap-2">
               {["Thể thao", "Xu hướng", "Trang trí", "Nam", "Nữ", "Giày thể thao", "Sport"].map((label) => (
-                <span
+                <a
                   key={label}
+                  href="#"
                   className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-700 cursor-pointer hover:bg-gray-100"
                 >
                   {label}
-                </span>
+                </a>
               ))}
             </div>
           </div>
+
         </Sider>
       </div>
     </div>
