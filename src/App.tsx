@@ -10,6 +10,7 @@ import { ForgotPassword } from "./pages/ForgotPassword";
 import  ProductCategory  from "./pages/ProductCategory";
 import  DetailProduct  from "./pages/DetailProduct";
 import  DetailCart  from "./pages/DetailCart";
+import  BlogCategory  from "./pages/BlogCategory";
 
 
 const App: React.FC = () => {
@@ -19,9 +20,13 @@ const App: React.FC = () => {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="/about" element={<About />} />
+          {/* Products */}
           <Route path="/products" element={< ProductCategory />} />
           <Route path="/products/detail" element={< DetailProduct />} />
           <Route path="/products/cart" element={< DetailCart />} />
+
+          {/* Blogs */}
+          <Route path="/blogs" element={< BlogCategory />} />
         </Route>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />

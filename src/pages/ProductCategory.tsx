@@ -124,6 +124,7 @@ export default function ProductCategory() {
 
     <Layout className="min-h-screen bg-white px-4 md:px-8 lg:px-11 py-6 font-roboto">
       <Layout>
+        {/* Thư mục */}
         <Sider width={250} className="bg-white p-4 lg:mr-8 mb-6 lg:mb-0" breakpoint="lg" collapsedWidth="0">
           {/* Thư mục */}
           <div className="mb-6 bg-gray-100 relative p-5">
@@ -203,9 +204,9 @@ export default function ProductCategory() {
             </div>
           </div>
         </Sider>
+              
 
-
-
+        {/* Danh sách sản phẩm */}
         <Content className=" bg-white ">
           <div className="bg-white p-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-y-4 md:gap-x-6">
             <div>
