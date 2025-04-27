@@ -3,7 +3,15 @@ import Background from '../assets/image/shoes.svg';
 import Facebook from '../assets/image/facebook.svg';
 import Google from '../assets/image/google.svg';
 import { Link } from "react-router-dom";
+import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
+import { useState } from "react";
 const Login: React.FC = () => {
+    const [showPass , setShowPass] = useState(false);
+
+    document.title = "Đăng nhập"
+    const togglePassword = () => {
+        setShowPass(!showPass);
+    };
     return (
         <>
             <AuthHeader title={"Đăng nhập"} />
@@ -26,12 +34,17 @@ const Login: React.FC = () => {
                                 <div className="input-group">
                                     <input
                                         required
-                                        type="text"
+                                        type={showPass? "text" : "password"}
                                         name="text"
                                         autoComplete="off"
                                         className="input"
                                     />
                                     <label className="user-label">Mật khẩu</label>
+                                    <div className="changepass" onClick={togglePassword}>
+                                        {
+                                            showPass ? <EyeInvisibleFilled /> : <EyeFilled />
+                                        }
+                                    </div>
                                 </div>
                                 <div className="input-group">
                                     <button className="btn-auth rounded">

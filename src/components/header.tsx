@@ -8,7 +8,7 @@ import { SearchOutlined, UserOutlined } from "@ant-design/icons";
 
 interface HeaderProps {
   isHome: boolean;
-  isPage: String;
+  isPage: string;
 }
 
 const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {

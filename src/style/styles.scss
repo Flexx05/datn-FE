@@ -618,3 +618,13 @@ input:valid~label {
     //     border-bottom-left-radius: 5px;
     // }
 }
+.changepass{
+    position: absolute;
+    z-index: 10;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 15px;
+    font-size: 19px;
+    color: #aaa7a7;
+    cursor: pointer;
+}
