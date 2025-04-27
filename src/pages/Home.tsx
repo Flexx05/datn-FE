@@ -7,7 +7,7 @@ const Home: React.FC = () => {
     { name: "HAGAN CORE TF LIGHT TOURING", slogan: "SKI BOOT LINERS" },
     { name: "HAGAN CORE TF LIGHT TOURING", slogan: "SKI BOOT LINERS" }
   ]
-  document.title = "Trang chủ"
+  document.title = "Trang chủ "
 
   return (
     <Carousel >
