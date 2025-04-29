@@ -12,7 +12,7 @@ import rectangle12 from '../assets/image/Rectangle 12.png'
 const { Sider, Content } = Layout
 
 export default function DetailBlog() {
-  // const [selectedCategory, setSelectedCategory] = useState("all")
+  const [selectedCategory, setSelectedCategory] = useState("all")
   const blogs = [
     {
       id: 1,
@@ -41,7 +41,84 @@ export default function DetailBlog() {
 
   return (
     <Layout className="min-h-screen bg-white px-4 md:px-8 lg:px-11 py-6 font-roboto">
-        
+      {/* Thư mục */}
+        <Sider width={250} className="bg-white p-4 lg:mr-8 mb-6 lg:mb-0" breakpoint="lg" collapsedWidth="0">
+          <div className="mb-6 bg-gray-100 relative p-5">
+            <h2 className="text-base font-bold uppercase ">THƯ MỤC</h2>
+            {/* Thanh line */}
+            <div className="relative mb-4 ">
+              <div className="h-1 w-20 bg-orange-400"></div>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+            </div>
+
+            <ul className="divide-y divide-gray-200 w-full">
+              {Array(5).fill(0).map((_, index) => {
+                const key = `category-${index}`;
+                return (
+                  <li
+                    key={key}
+                    onClick={() => setSelectedCategory(key)}
+                    className={`flex justify-between items-center cursor-pointer px-2 py-3 transition-all duration-200 ${selectedCategory === key ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"
+                      }`}
+                  >
+                    <span className="text-gray-800 text-sm font-medium">Tin khuyến mãi</span>
+                    <span className="text-gray-400 text-base font-bold">+</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* Sản phẩm mới ra mắt */}
+          <div className="mb-6">
+            <h2 className="text-base font-bold mb-4 ">Các sản phẩm mới ra mắt</h2>
+            {/* Thanh line */}
+            <div className="relative mb-4 ">
+              <div className="h-1 w-20 bg-orange-400"></div>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+            </div>
+            <div className="space-y-4 ">
+              {featuredProducts.map((product) => (
+                <div key={product.id} className="flex space-x-2 border-b pb-2">
+                  <div className="flex-shrink-0">
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.title}
+                      width={60}
+                      height={60}
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="text-sm">
+                    <a href="#" className="leading-tight block font-semibold text-black">{product.title}</a>
+                    <a href="#" className="block text-xs text-gray-500 mt-1">25/04/2025</a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Từ khóa */}
+          <div>
+            <h2 className="text-base font-bold mb-4 uppercase">TỪ KHÓA</h2>
+            {/* Thanh line */}
+            <div className="relative mb-4 ">
+              <div className="h-1 w-20 bg-orange-400"></div>
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {["Thể thao", "Xu hướng", "Trang trí", "Nam", "Nữ", "Giày thể thao", "Sport"].map((label) => (
+                <a
+                  key={label}
+                  href="#"
+                  className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-700 cursor-pointer hover:bg-gray-100"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </Sider>
 
         {/* Danh sách bài viết */}
         <Content className="bg-white">
