@@ -123,7 +123,6 @@ export default function ProductCategory() {
   return (
 
     <Layout className="min-h-screen bg-white px-4 md:px-8 lg:px-11 py-6 font-roboto">
-      <Layout>
         {/* Thư mục */}
         <Sider width={250} className="bg-white p-4 lg:mr-8 mb-6 lg:mb-0" breakpoint="lg" collapsedWidth="0">
           {/* Thư mục */}
@@ -255,7 +254,7 @@ export default function ProductCategory() {
                     alt={product.name}
                     className="w-full h-full object-cover rounded"
                   />
-                  <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
+                  <div className="absolute top-2 left-2 flex flex-col gap-1">
                     {product.isNew && (
                       <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600">
                         MỚI
@@ -281,7 +280,6 @@ export default function ProductCategory() {
             <Pagination defaultCurrent={1} total={50} />
           </div>
         </Content>
-      </Layout>
     </Layout>
   )
 }
