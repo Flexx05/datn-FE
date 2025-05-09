@@ -4,12 +4,13 @@ import Facebook from "../assets/image/facebook.svg";
 import Google from "../assets/image/google.svg";
 import { Link } from "react-router-dom";
 import { Button } from "antd";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   ArrowLeftOutlined,
   EyeFilled,
   EyeInvisibleFilled,
 } from "@ant-design/icons";
+import { register } from "../services/authService";
 
 const Register: React.FC = () => {
   const [current, setCurrent] = useState(0);
@@ -22,6 +23,30 @@ const Register: React.FC = () => {
   });
   const [showPass, setShowPass] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+  
+    try {
+      await register(
+        formData.email,
+        formData.password,
+        formData.name, 
+      );
+      alert("Đăng ký thành công!");
+    } catch (error: unknown) {
+      console.error("Đăng ký lỗi", error);
+      alert("Đăng ký thất bại!");
+    }
+
+  };
+  
 
   const toggleOldPassword = () => {
     setShowPass(!showPass);
@@ -188,6 +213,7 @@ const Register: React.FC = () => {
                   ) : (
                     <Button
                       className="btn-auth rounded"
+                      onClick={submit}
                       disabled={!isStepValid()}
                     >
                       Đăng ký
