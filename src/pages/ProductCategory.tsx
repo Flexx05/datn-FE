@@ -123,7 +123,7 @@ export default function ProductCategory() {
   return (
 
     <Layout className="min-h-screen bg-white px-4 md:px-8 lg:px-11 py-6 font-roboto">
-      <Layout>
+        {/* Thư mục */}
         <Sider width={250} className="bg-white p-4 lg:mr-8 mb-6 lg:mb-0" breakpoint="lg" collapsedWidth="0">
           {/* Thư mục */}
           <div className="mb-6 bg-gray-100 relative p-5">
@@ -203,9 +203,9 @@ export default function ProductCategory() {
             </div>
           </div>
         </Sider>
+              
 
-
-
+        {/* Danh sách sản phẩm */}
         <Content className=" bg-white ">
           <div className="bg-white p-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-y-4 md:gap-x-6">
             <div>
@@ -248,7 +248,7 @@ export default function ProductCategory() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {products.map((product) => (
               <div key={product.id} className="bg-white min-h-[400px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="relative w-full h-80 overflow-hidden">
+                <div className="relative w-full h-full overflow-hidden">
                   <Image
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
@@ -280,7 +280,6 @@ export default function ProductCategory() {
             <Pagination defaultCurrent={1} total={50} />
           </div>
         </Content>
-      </Layout>
     </Layout>
   )
 }

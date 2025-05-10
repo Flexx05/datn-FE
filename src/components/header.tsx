@@ -47,8 +47,8 @@ const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
               <Link to="/" className={isPage === '/' ? 'active' : ''} >Trang chủ</Link>
             </li>
             <li><a href="">Giới thiệu</a></li>
-            <li><a href="">Sản phẩm</a></li>
-            <li><a href="">Tin tức</a></li>
+            <li><a href="/products">Sản phẩm</a></li>
+            <li><a href="/blogs">Tin tức</a></li>
             <li><a href="">Liên hệ</a></li>
             <li className='right-item'>
               <div className='header-icon'><a href=""><SearchOutlined /></a></div>
