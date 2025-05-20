@@ -12,6 +12,7 @@ import  DetailProduct  from "./pages/DetailProduct";
 import  DetailCart  from "./pages/DetailCart";
 import  BlogCategory  from "./pages/BlogCategory";
 import  DetailBlog  from "./pages/DetailBlog";
+import DetailOrder from "./pages/DetailOrder";
 
 
 const App: React.FC = () => {
@@ -34,7 +35,10 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword/>} />
+          <Route path="/products/detailorder" element = {<DetailOrder/>} />
+
         </Route>
+
       </Routes>
     </Router>
   );
