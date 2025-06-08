@@ -5,6 +5,10 @@ import Bag from '../assets/image/bag.svg';
 import BagDark from '../assets/image/bag-dark.svg';
 
 import { SearchOutlined, UserOutlined } from "@ant-design/icons";
+import { useAuth } from "../auth/AuthContext ";
+import Button from "antd/es/button";
+import Popover from "antd/es/popover";
+import Avatar from "antd/es/avatar";
 
 interface HeaderProps {
   isHome: boolean;
@@ -12,9 +16,20 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
-
+  const { user, logout } = useAuth();
   const location = useLocation();
+  
+  if (!user) return null;
 
+  const popoverContent = (
+    <div className="min-w-[180px]">
+      <a href="">Thông tin tài khoản</a>
+      <a href="">Đổi mật khẩu</a>
+      <Button type="text" danger block onClick={logout}>
+        Đăng xuất
+      </Button>
+    </div>
+  );
   useEffect(() => {
     if (location.pathname !== "/") return; // Chỉ áp dụng trên trang chủ
 
@@ -52,11 +67,20 @@ const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
             <li><a href="">Liên hệ</a></li>
             <li className='right-item'>
               <div className='header-icon'><a href=""><SearchOutlined /></a></div>
-              <div className='header-icon'><a href=""><UserOutlined /></a></div>
+              <div className='header-icon'>
+                <Popover content={popoverContent} placement="bottomRight" trigger="click">
+                <div className="cursor-pointer flex items-center gap-2">
+                  <Avatar src={user.avatar || undefined}>
+                    {!user.avatar && user.fullName[0]}
+                  </Avatar>
+                </div>
+              </Popover>
+              </div>
+
               <div className='header-icon'>
                 <a href="" className='cart-icon' data-count="10">
-                  <img src={Bag} className="bag-light"/>
-                  <img src={BagDark} className="bag-dark"/>
+                  <img src={Bag} className="bag-light" />
+                  <img src={BagDark} className="bag-dark" />
                   <small className='cart-sml'>Giỏ hàng</small>
                 </a></div>
             </li>

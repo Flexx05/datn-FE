@@ -24,7 +24,7 @@
     "react-hook-form": "^7.52.0",
     "react-router-dom": "^6.30.0",
     "react-sweetalert2": "^0.6.0",
-    "sass": "^1.86.1",
+    "sass": "^1.89.1",
     "sweetalert2": "^11.22.0"
   },
   "devDependencies": {

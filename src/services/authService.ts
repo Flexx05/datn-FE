@@ -3,10 +3,34 @@ import axios from "axios";
 axios.defaults.baseURL = 'http://localhost:8080/api/';
 axios.defaults.withCredentials = true;
 
-export const login = async (email: string, password: string) => {
-  return axios.post('/login', { email, password });
-};
+export interface User {
+  _id: string;
+  fullName: string;
+  email: string;
+  avatar: string | null;
+  role: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
+export interface LoginResponse {
+  message: string;
+  user: User;
+  accessToken: string;
+}
+
+export const login = async (email: string, password: string): Promise<LoginResponse> => {
+  try {
+    const res = await axios.post<LoginResponse>("/login", { email, password });
+    return res.data;
+  } catch (err: any) {
+    if (err.response?.data?.error) {
+      throw new Error(err.response.data.error); 
+    }
+    throw new Error("Đăng nhập thất bại. Vui lòng thử lại.");
+  }
+};
 
 export const register = async (fullName: string, email: string, password: string, confirmPassword: string) => {
   try {

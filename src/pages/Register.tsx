@@ -19,7 +19,6 @@ const Register: React.FC = () => {
   const handleOtpVerified = () => {
     navigate("/login");
   };
-  
   return (
     <>
       <AuthHeader title={"Đăng ký"} />
