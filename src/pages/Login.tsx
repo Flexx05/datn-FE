@@ -7,6 +7,7 @@ import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import { useState } from "react";
 import { useAuth } from "../auth/AuthContext ";
 import { login } from "../services/authService";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 // <-- Context login
 
 const Login: React.FC = () => {
@@ -92,8 +93,9 @@ const Login: React.FC = () => {
                                 <div className="bg-blue-700 flex items-center justify-center social">
                                     <img src={Facebook} />
                                 </div>
-                                <div className="flex items-center justify-center border border-black border-solid social">
-                                    <img src={Google} alt="" />
+                                <div >
+                                    {/* <img src={Google} alt="" /> */}
+                                    <GoogleLoginButton />
                                 </div>
                             </div>
                             <span className="text-center block mt-8">

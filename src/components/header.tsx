@@ -6,9 +6,10 @@ import BagDark from '../assets/image/bag-dark.svg';
 
 import { SearchOutlined, UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../auth/AuthContext ";
+
+import Avatar from "antd/es/avatar";
 import Button from "antd/es/button";
 import Popover from "antd/es/popover";
-import Avatar from "antd/es/avatar";
 
 interface HeaderProps {
   isHome: boolean;
@@ -18,18 +19,8 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
-  
-  if (!user) return null;
 
-  const popoverContent = (
-    <div className="min-w-[180px]">
-      <a href="">Thông tin tài khoản</a>
-      <a href="">Đổi mật khẩu</a>
-      <Button type="text" danger block onClick={logout}>
-        Đăng xuất
-      </Button>
-    </div>
-  );
+
   useEffect(() => {
     if (location.pathname !== "/") return; // Chỉ áp dụng trên trang chủ
 
@@ -50,6 +41,19 @@ const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location.pathname]);
 
+
+  const popoverContent = (
+    <div className="min-w-[180px]">
+      <p className="font-semibold text-center">
+        <Link to={""}>Thông tin tài khoản</Link>
+      </p>
+      <Button type="text" danger block onClick={logout}>
+        Đăng xuất
+      </Button>
+    </div>
+  );
+
+
   return (
     <header className={isHome ? 'active' : ''}>
       <div className="container mx-auto">
@@ -68,13 +72,23 @@ const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
             <li className='right-item'>
               <div className='header-icon'><a href=""><SearchOutlined /></a></div>
               <div className='header-icon'>
-                <Popover content={popoverContent} placement="bottomRight" trigger="click">
-                <div className="cursor-pointer flex items-center gap-2">
-                  <Avatar src={user.avatar || undefined}>
-                    {!user.avatar && user.fullName[0]}
-                  </Avatar>
-                </div>
-              </Popover>
+                {user ? (
+                  <Popover
+                    content={popoverContent}
+                    trigger="click"
+                    placement="bottomRight">
+                    <Avatar
+                      size={30}
+                      src={user?.avatar || undefined}
+                      style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }}
+                    >
+                      {!user?.avatar && user?.fullName?.charAt(0)?.toUpperCase()}
+                    </Avatar>
+                  </Popover>
+                ) : (
+                <a href="/login"><UserOutlined /></a>
+            )}
+
               </div>
 
               <div className='header-icon'>
