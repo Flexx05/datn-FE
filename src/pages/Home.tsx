@@ -1,21 +1,53 @@
-import React, { useState } from "react";
-import { Carousel } from "antd";
-import ImageSlide from "../assets/image/slideshow-1_1920x 1.jpg";
-import thuml from "../assets/image/product-remove.png";
 import { CaretRightOutlined } from "@ant-design/icons";
-import rectangle1 from "../assets/image/product.svg";
+import { useQuery } from '@tanstack/react-query';
+import { Carousel } from "antd";
+import React, { useMemo, useState } from "react";
+import Marquee from "react-fast-marquee";
 import about from "../assets/image/about.png";
 import image_1 from "../assets/image/footer-1.png";
 import image_2 from "../assets/image/footer-2.png";
 import image_3 from "../assets/image/footer-3.png";
-import Marquee from "react-fast-marquee";
+import thuml from "../assets/image/product-remove.png";
+import rectangle1 from "../assets/image/product.svg";
+import ImageSlide from "../assets/image/slideshow-1_1920x 1.jpg";
+import { useNavigate } from "react-router-dom";
+import { productService } from '../services/product.service';
+import { IProduct } from '../interface/product.interface';
 
 const Home: React.FC = () => {
-  const [selectedId, setSelectedId] = useState<string | number | null>("1");
+  const [selectedId, setSelectedId] = useState<string>('1');
+  const navigate = useNavigate();
+
+  // Query tất cả sản phẩm
+  const { data, isLoading, error } = useQuery<{ docs: IProduct[] }>({
+    queryKey: ['products'],
+    queryFn: productService.getAllProducts,
+  });
+
+  const products = data?.docs || [];
+
+  // Lọc sản phẩm dựa theo selectedId
+  const filteredProducts = useMemo(() => {
+    if (!products.length) return [];
+
+    return products.filter(product => {
+      if (selectedId === '2') {
+        return product.isActive;
+      }
+
+      if (selectedId === '3') {
+        const variation = product.variation?.[0];
+        return variation?.salePrice < variation?.regularPrice;
+      }
+
+      return true;
+    });
+  }, [products, selectedId]);
 
   const handleCheckboxChange = (id: string) => {
-    setSelectedId((prevId) => (prevId === id ? null : id));
+    setSelectedId(prev => (prev === id ? '1' : id));
   };
+  
   const banner = [
     { name: "HAGAN CORE TF LIGHT TOURING", slogan: "SKI BOOT LINERS" },
     { name: "HAGAN CORE TF LIGHT TOURING", slogan: "SKI BOOT LINERS" },
@@ -59,116 +91,6 @@ const Home: React.FC = () => {
     cursor: "pointer",
   };
 
-  const products = [
-    {
-      id: 1,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 40,
-      color: "blue",
-    },
-    {
-      id: 2,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 40,
-      color: "cyan",
-    },
-    {
-      id: 3,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 40,
-      color: "pink",
-    },
-    {
-      id: 4,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 40,
-      color: "blue",
-    },
-    {
-      id: 5,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 45,
-      color: "purple",
-    },
-    {
-      id: 6,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 45,
-      color: "white",
-    },
-    {
-      id: 7,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 45,
-      color: "white",
-    },
-    {
-      id: 8,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 45,
-      color: "purple",
-    },
-    {
-      id: 8,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 45,
-      color: "purple",
-    },
-    {
-      id: 8,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 45,
-      color: "purple",
-    },
-    {
-      id: 8,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 45,
-      color: "purple",
-    },
-    {
-      id: 8,
-      name: "Giày Thể Thao Sneaker MULGATI HX482C",
-      price: "100.000 VND",
-      image: rectangle1,
-      isNew: true,
-      discount: 45,
-      color: "purple",
-    },
-  ];
   const articles = [
     {
       id: 1,
@@ -222,6 +144,7 @@ const Home: React.FC = () => {
       img: image_2,
     },
   ];
+
   return (
     <>
       <Carousel>
@@ -295,41 +218,62 @@ const Home: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white min-h-[400px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="relative w-full h-full overflow-hidden">
-                <img
-                  src={product.image || "/placeholder.svg"}
-                  alt={product.name}
-                  className="w-full h-full object-cover rounded"
-                />
-                <div className="absolute top-2 left-2 flex flex-col gap-1">
-                  {product.isNew && (
-                    <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600">
-                      MỚI
+          {isLoading ? (
+            <div>Đang tải...</div>
+          ) : error ? (
+            <div className="text-red-500">Có lỗi xảy ra khi tải sản phẩm</div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="col-span-full text-center text-gray-500">
+              Không có sản phẩm nào trong danh mục này
+            </div>
+          ) : (
+            filteredProducts.map((product: IProduct) => (
+              <div
+                key={product.slug}
+                className="bg-white min-h-[300px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  navigate(`/products/${product.slug}`);
+                }}
+              >
+                <div className="relative w-full h-full overflow-hidden">
+                  <img
+                    src={product.image[0] || "/placeholder.svg"}
+                    alt={product.name}
+                    className="w-full h-full object-cover rounded"
+                  />
+                 <div className="absolute top-2 left-2 flex flex-col gap-1">
+                  {product.isActive && (
+                      <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600">
+                        MỚI
+                      </span>
+                    )}
+                    {product.variation && product.variation[0]?.salePrice < product.variation[0]?.regularPrice && (
+                      <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-red-500">
+                        -{Math.round((1 - product.variation[0].salePrice / product.variation[0].regularPrice) * 100)}%
+                      </span>
+                    )}
+                </div>
+                </div>
+
+                <div className="p-4">
+                  <h3 className="text-sm font-medium mb-2 truncate">
+                    {product.name}
+                  </h3>
+                  <div className="flex justify-between items-center">
+                    <span className="text-red-500 font-bold">
+                      {product.variation && product.variation[0]?.salePrice.toLocaleString('vi-VN')}đ
                     </span>
-                  )}
-                  {product.discount && (
-                    <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-red-500">
-                      -{product.discount}%
+                    <span className="text-gray-400 line-through">
+                      {product.variation && product.variation[0]?.regularPrice  .toLocaleString('vi-VN')}đ
                     </span>
-                  )}
+                  </div>
                 </div>
               </div>
-
-              <div className="p-4">
-                <h3 className="text-sm font-medium mb-2 truncate">
-                  {product.name}
-                </h3>
-                <p className="text-red-500 font-bold">{product.price}</p>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
+
       <div className="intro">
         <div className="container mx-auto h-full">
           <div className="grid grid-cols-12 h-full">
@@ -345,6 +289,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
+
       <div className="container mx-auto">
         <small
           style={{
@@ -365,39 +310,55 @@ const Home: React.FC = () => {
           SHOES
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-10">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="cursor-pointer bg-white min-h-[400px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="relative w-full h-full overflow-hidden">
-                <img
-                  src={product.image || "/placeholder.svg"}
-                  alt={product.name}
-                  className="w-full h-full object-cover rounded"
-                />
-                <div className="absolute top-2 left-2 flex flex-col gap-1">
-                  {product.isNew && (
-                    <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600">
-                      MỚI
+          {isLoading ? (
+            <div>Đang tải...</div>
+          ) : error ? (
+            <div className="text-red-500">Có lỗi xảy ra khi tải sản phẩm</div>
+          ) : (
+            products.map((product: any) => (
+              <div
+                key={product._id}
+                className="bg-white min-h-[300px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  navigate(`/products/${product.slug}`);
+                }}
+              >
+                <div className="relative w-full h-full overflow-hidden">
+                  <img
+                    src={product.image[0] || "/placeholder.svg"}
+                    alt={product.name}
+                    className="w-full h-full object-cover rounded"
+                  />
+                 <div className="absolute top-2 left-2 flex flex-col gap-1">
+                  {product.isActive && (
+                      <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600">
+                        MỚI
+                      </span>
+                    )}
+                    {product.variation && product.variation[0]?.salePrice < product.variation[0]?.regularPrice && (
+                      <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-red-500">
+                        -{Math.round((1 - product.variation[0]?.salePrice / product.variation[0].regularPrice) * 100)}%
+                      </span>
+                    )}
+                </div>
+                </div>
+
+                <div className="p-4">
+                  <h3 className="text-sm font-medium mb-2 truncate">
+                    {product.name}
+                  </h3>
+                  <div className="flex justify-between items-center">
+                    <span className="text-red-500 font-bold">
+                      {product.variation && product.variation[0]?.salePrice.toLocaleString('vi-VN')}đ
                     </span>
-                  )}
-                  {product.discount && (
-                    <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-red-500">
-                      -{product.discount}%
+                    <span className="text-gray-400 line-through">
+                      {product.variation && product.variation[0]?.regularPrice.toLocaleString('vi-VN')}đ
                     </span>
-                  )}
+                  </div>
                 </div>
               </div>
-
-              <div className="p-4">
-                <h3 className="text-sm font-medium mb-2 truncate">
-                  {product.name}
-                </h3>
-                <p className="text-red-500 font-bold">{product.price}</p>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* /Bai viet/ */}
@@ -435,12 +396,11 @@ const Home: React.FC = () => {
         </div>
       </div>
       <Marquee>
-        {marqImage.map((item , index) => (
-          <img className="marquee-img"  key={index} src={item.img} alt="" />
+        {marqImage.map((item, index) => (
+          <img className="marquee-img" key={index} src={item.img} alt="" />
         ))}
       </Marquee>
     </>
   );
 };
-
 export default Home;
