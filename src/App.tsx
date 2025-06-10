@@ -12,6 +12,8 @@ import  DetailProduct  from "./pages/DetailProduct";
 import  DetailCart  from "./pages/DetailCart";
 import  BlogCategory  from "./pages/BlogCategory";
 import  DetailBlog  from "./pages/DetailBlog";
+import { UserInfo } from "./pages/Userinfo";
+import ProtectedRoute from "./auth/ProtectedRoute";
 
 
 const App: React.FC = () => {
@@ -25,10 +27,10 @@ const App: React.FC = () => {
           <Route path="/products" element={< ProductCategory />} />
           <Route path="/products/detail" element={< DetailProduct />} />
           <Route path="/products/cart" element={< DetailCart />} />
-
           {/* Blogs */}
           <Route path="/blogs" element={< BlogCategory />} />
           <Route path="/blogs/detail" element={< DetailBlog />} />
+          <Route path="/user/info" element={<ProtectedRoute>< UserInfo /></ProtectedRoute>} />
         </Route>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />

@@ -1,4 +1,4 @@
-import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
+import { CheckSquareFilled, CloseSquareFilled, CloseSquareOutlined, EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import Button from "antd/es/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -6,9 +6,10 @@ import Facebook from "../assets/image/facebook.svg";
 import Google from "../assets/image/google.svg";
 import { register } from "../services/authService";
 import Swal from "sweetalert2";
+import { getPasswordStrength, validatePasswordRules } from "../utils/function";
 
 interface RegisterFormProps {
-  onRegisterSuccess: (email: string) => void;
+    onRegisterSuccess: (email: string) => void;
 }
 
 
@@ -23,10 +24,22 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess }) => {
     });
     const [showPass, setShowPass] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
+    const rules = validatePasswordRules(formData.password);
+    const strength = getPasswordStrength(rules);
     const toggleOldPassword = () => {
         setShowPass(!showPass);
     };
 
+    const strengthColor = {
+        Yếu: "text-red-500 ",
+        "Trung bình": "text-yellow-500",
+        Mạnh: "text-green-500 ",
+    };
+    const strengthBgColor = {
+        Yếu: "w-[30%] bg-red-400",
+        "Trung bình": "w-[60%] bg-yellow-400",
+        Mạnh: "w-[100%] bg-green-400",
+    };
     const toggleNewPassword = () => {
         setShowNewPassword(!showNewPassword);
     };
@@ -100,24 +113,41 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess }) => {
             title: "Nhập mật khẩu",
             content: (
                 <>
-                    <div className="input-group">
-                        <input
-                            required
-                            type={showPass ? "text" : "password"}
-                            name="password"
-                            autoComplete="off"
-                            className="input"
-                            value={formData.password}
-                            onChange={(e) =>
-                                setFormData({ ...formData, password: e.target.value })
-                            }
-                        />
-                        <label className="user-label">Nhập mật khẩu</label>
-                        <div className="changepass" onClick={toggleOldPassword}>
-                            {showPass ? <EyeInvisibleFilled /> : <EyeFilled />}
+                    <div className="input-group !mb-0">
+                        <div className="flex items-top
+                        ">
+                            <input
+                                required
+                                type={showPass ? "text" : "password"}
+                                name="password"
+                                autoComplete="off"
+                                className="input"
+                                value={formData.password}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, password: e.target.value })
+                                }
+                            />
+                            <label className="user-label">Nhập mật khẩu</label>
+                            {/* <div className="changepass" onClick={toggleOldPassword}>
+                                {showPass ? <EyeInvisibleFilled /> : <EyeFilled />}
+                            </div> */}
+                        </div>
+                        <div className="flex gap-4 items-center justify-between my-2">
+                            <div
+                                className={`h-1 rounded-full ${strengthBgColor[strength] || ""}`}
+                            >
+                            </div>
+                            <p className={`text-sm text-right ${strengthColor[strength]}`}>
+                                {strength}
+                            </p>
                         </div>
                     </div>
-
+                    <ul className="text-sm grid grid-cols-2 grid-rows-2 gap-2 mb-6">
+                        <li className={rules.length ? "text-green-500" : "text-gray-500"}>{rules.length ? <i className="pi pi-check text-sm"></i> : <i className="pi pi-times text-sm"></i>} Tối thiểu 8 ký tự</li>
+                        <li className={rules.hasUpper ? "text-green-500" : "text-gray-500"}>{rules.hasUpper ? <i className="pi pi-check text-sm"></i> : <i className="pi pi-times text-sm"></i>} Chứa ký tự in hoa</li>
+                        <li className={rules.hasNumber ? "text-green-500" : "text-gray-500"}>{rules.hasNumber ? <i className="pi pi-check text-sm"></i> : <i className="pi pi-times text-sm"></i>} Chứa số</li>
+                        <li className={rules.hasSpecial ? "text-green-500" : "text-gray-500"}>{rules.hasSpecial ? <i className="pi pi-check text-sm"></i> : <i className="pi pi-times text-sm"></i>} Chứa ký tự đặc biệt</li>
+                    </ul>
                     <div className="input-group">
                         <input
                             required
@@ -131,7 +161,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess }) => {
                             }
                         />
                         <label className="user-label">Nhập lại mật khẩu</label>
-                        <div className="changepass" onClick={toggleNewPassword}>
+                        <div className="changepass" onClick={toggleNewPassword} style={{transform: "translateY(-100%);"}}>
                             {showNewPassword ? <EyeInvisibleFilled /> : <EyeFilled />}
                         </div>
                     </div>
@@ -179,7 +209,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess }) => {
                                         textAlign: "center",
                                         cursor: "pointer",
                                         backgroundColor:
-                                            current === index ? "#1890ff" : "#f0f0f0",
+                                            current === index ? "#1890ff" : "#1a73e82d",
                                         color: current === index ? "#fff" : "#000",
                                         margin: "0 2px",
                                         width: "123px",
