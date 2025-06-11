@@ -26,7 +26,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     return res.data;
   } catch (err: any) {
     if (err.response?.data?.error) {
-      throw new Error(err.response.data.error); 
+      throw new Error(err.response.data.error);
     }
     throw new Error("Đăng nhập thất bại. Vui lòng thử lại.");
   }
@@ -71,5 +71,30 @@ export const verifyOtp = async (email: string, otp: string) => {
       console.error("Lỗi không xác định: ", error.message);
       throw new Error("Đã xảy ra lỗi. Vui lòng thử lại.");
     }
+  }
+};
+export const ChangePassword = async (email: string, password: string) => {
+  try {
+    const response = await axios.post('/reset-password', {
+      email,
+      password,
+    });
+
+    if (response.status === 200) {
+      return {
+        success: true,
+        message: response.data.message || 'Mật khẩu đã được thay đổi thành công!'
+      };
+    } else {
+      throw new Error('Không thể thay đổi mật khẩu. Vui lòng thử lại.');
+    }
+  } catch (error: any) {
+    console.error('Đổi mật khẩu thất bại:', error);
+    if (error.response) {
+      const errorMessage = error.response.data.message || 'Có lỗi xảy ra khi đổi mật khẩu';
+      throw new Error(errorMessage); // Ném ra lỗi với thông báo cụ thể
+    }
+
+    throw new Error('Lỗi kết nối hoặc server gặp sự cố. Vui lòng thử lại sau.');
   }
 };

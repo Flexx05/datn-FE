@@ -45,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
   const popoverContent = (
     <div className="min-w-[180px]">
       <p className="font-semibold text-center">
-        <Link to={""}>Thông tin tài khoản</Link>
+        <Link to={"user/info"}>Thông tin tài khoản</Link>
       </p>
       <Button type="text" danger block onClick={logout}>
         Đăng xuất
