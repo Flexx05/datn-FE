@@ -19,14 +19,14 @@ export default function ProductCategory() {
   // Lấy slug từ URL
   const selectedCategorySlug = searchParams.get('category') || 'all';
   const selectedBrandSlug = searchParams.get('brand') || 'all';
+  const expandedParam = searchParams.get('expanded');
 
   // UI states
   const [showAllBrands, setShowAllBrands] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [subCategories, setSubCategories] = useState<{ [key: string]: ICategory[] }>({});
+  const [expandedCategorySlug, setExpandedCategorySlug] = useState<string | null>(expandedParam);
 
   // Query data
   const { data: productsData, isLoading: isLoadingProducts } = useQuery<{ docs: IProduct[] }>({
@@ -46,64 +46,105 @@ export default function ProductCategory() {
     queryFn: productService.getAllProducts
   });
 
-  
-  // Helper: slug <-> id
+  // State để lưu subcategories của từng parent category
+  const [subCategoriesData, setSubCategoriesData] = useState<{ [parentId: string]: ICategory[] }>({});
+
+  // Helper chuyển đổi id <-> slug
   const getIdFromSlug = (slug: string, type: 'brand' | 'category'): string => {
     if (slug === 'all') return 'all';
-    if (type === 'brand') {
-      return brandData?.find(b => b.slug === slug)?._id?.toString() || 'all';
-    }
-    // category
-    const cat = categoriesData?.find(c => c.slug === slug);
+    if (type === 'brand') return brandData?.find(b => b.slug === slug)?._id?.toString() || 'all';
+    
+    // Tìm trong main categories (chỉ categories không có parentId)
+    const cat = categoriesData?.find(c => c.slug === slug && !c.parentId);
     if (cat) return cat._id.toString();
-    for (const arr of Object.values(subCategories)) {
-      const sub = arr.find(sc => sc.slug === slug);
-      if (sub) return sub._id.toString();
-    }
+    
+    // Tìm trong subcategories (categories có parentId)
+    const subCat = categoriesData?.find(c => c.slug === slug && c.parentId);
+    if (subCat) return subCat._id.toString();
+    
     return 'all';
   };
+
   const getSlugFromId = (id: string, type: 'brand' | 'category'): string => {
     if (id === 'all') return 'all';
-    if (type === 'brand') {
-      return brandData?.find(b => b._id === id)?.slug || 'all';
-    }
-    // category
+    if (type === 'brand') return brandData?.find(b => b._id === id)?.slug || 'all';
+    
+    // Tìm trong tất cả categories
     const cat = categoriesData?.find(c => c._id === id);
     if (cat) return cat.slug;
-    for (const arr of Object.values(subCategories)) {
-      const sub = arr.find(sc => sc._id === id);
+    
+    // Tìm trong subcategories data
+    for (const subCats of Object.values(subCategoriesData)) {
+      const sub = subCats.find(sc => sc._id === id);
       if (sub) return sub.slug;
     }
+    
     return 'all';
+  };
+
+  // Tìm parent category của một subcategory (trả về slug)
+  const findParentCategorySlug = (subcategoryId: string): string | null => {
+    // Tìm trong subcategories data
+    for (const [parentId, subCats] of Object.entries(subCategoriesData)) {
+      if (subCats.some(sub => sub._id === subcategoryId)) {
+        const parent = categoriesData?.find(c => c._id === parentId);
+        return parent?.slug || null;
+      }
+    }
+    return null;
   };
 
   // Lấy id thực tế để filter
-  const selectedCategoryId = getIdFromSlug(selectedCategorySlug, 'category');
-  const selectedBrandId = getIdFromSlug(selectedBrandSlug, 'brand');
+  const selectedCategoryId = useMemo(
+    () => getIdFromSlug(selectedCategorySlug, 'category'),
+    [selectedCategorySlug, categoriesData, subCategoriesData]
+  );
+  const selectedBrandId = useMemo(
+    () => getIdFromSlug(selectedBrandSlug, 'brand'),
+    [selectedBrandSlug, brandData]
+  );
 
   // Cập nhật URL khi chọn filter
-  const updateUrlParams = (newCategoryId?: string, newBrandId?: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (newCategoryId !== undefined) {
-      const slug = getSlugFromId(newCategoryId, 'category');
-      slug === 'all' ? params.delete('category') : params.set('category', slug);
-    }
-    if (newBrandId !== undefined) {
-      const slug = getSlugFromId(newBrandId, 'brand');
-      slug === 'all' ? params.delete('brand') : params.set('brand', slug);
+  const updateUrlParams = (newCategoryId?: string, newBrandId?: string, newExpandedSlug?: string | null) => {
+    const params = new URLSearchParams();
+    const catSlug = getSlugFromId(newCategoryId ?? selectedCategoryId, 'category');
+    const brandSlug = getSlugFromId(newBrandId ?? selectedBrandId, 'brand');
+    if (catSlug !== 'all') params.set('category', catSlug);
+    if (brandSlug !== 'all') params.set('brand', brandSlug);
+    if (newExpandedSlug !== undefined) {
+      if (newExpandedSlug) params.set('expanded', newExpandedSlug);
+    } else if (expandedCategorySlug) {
+      params.set('expanded', expandedCategorySlug);
     }
     setSearchParams(params);
   };
 
   // Xử lý chọn filter
-  const handleCategorySelect = (categoryId: string) => updateUrlParams(categoryId, undefined);
-  const handleBrandSelect = (brandId: string) => updateUrlParams(undefined, brandId);
+  const handleCategorySelect = (categoryId: string) => {
+    const parentSlug = findParentCategorySlug(categoryId);
+    updateUrlParams(categoryId, undefined, parentSlug);
+  };
+  const handleBrandSelect = (brandId: string) => updateUrlParams(undefined, brandId, undefined);
 
-  // Tự động mở accordion nếu có filter
+  // Tự động mở accordion nếu có filter và khôi phục trạng thái expanded
   useEffect(() => {
-    if (selectedCategorySlug !== 'all') setShowAllCategories(true);
+    if (selectedCategorySlug !== 'all') {
+      setShowAllCategories(true);
+      const categoryId = getIdFromSlug(selectedCategorySlug, 'category');
+      const parentSlug = findParentCategorySlug(categoryId);
+      if (parentSlug) {
+        setExpandedCategorySlug(parentSlug);
+      }
+    }
     if (selectedBrandSlug !== 'all') setShowAllBrands(true);
-  }, [selectedCategorySlug, selectedBrandSlug]);
+  }, [selectedCategorySlug, selectedBrandSlug, categoriesData, subCategoriesData]);
+
+  // Khôi phục expanded state từ URL parameter
+  useEffect(() => {
+    if (expandedParam && categoriesData) {
+      setExpandedCategorySlug(expandedParam);
+    }
+  }, [expandedParam, categoriesData]);
 
   // Lọc sản phẩm
   const filteredProducts = useMemo(() => {
@@ -133,30 +174,52 @@ export default function ProductCategory() {
 
   // Lấy subcategory khi expand
   const handleExpandCategory = async (parentId: string) => {
-    if (expandedCategory === parentId) {
-      setExpandedCategory(null);
+    const parentSlug = getSlugFromId(parentId, 'category');
+    if (expandedCategorySlug === parentSlug) {
+      setExpandedCategorySlug(null);
+      updateUrlParams(undefined, undefined, null);
       return;
     }
-    setExpandedCategory(parentId);
-    if (!subCategories[parentId]) {
-      const subs = await categoryService.getAllSubCategory(parentId);
-      setSubCategories(prev => ({ ...prev, [parentId]: subs }));
+    
+    setExpandedCategorySlug(parentSlug);
+    updateUrlParams(undefined, undefined, parentSlug);
+    
+    // Fetch subcategories nếu chưa có
+    if (!subCategoriesData[parentId]) {
+      try {
+        // Gọi API để lấy subcategories - bạn cần tạo service này
+        // const subCats = await categoryService.getAllSubCategory(parentId);
+        // setSubCategoriesData(prev => ({ ...prev, [parentId]: subCats }));
+        
+        // Tạm thời sử dụng data có sẵn từ categoriesData nếu có
+        const parentCategory = categoriesData?.find(c => c._id === parentId);
+        if (parentCategory && parentCategory.subCategories) {
+          setSubCategoriesData(prev => ({ ...prev, [parentId]: parentCategory.subCategories || [] }));
+        }
+      } catch (error) {
+        console.error('Error fetching subcategories:', error);
+      }
     }
   };
 
   // Hiển thị tên filter
-  const getSelectedBrandName = () => {
-    if (selectedBrandId === 'all') return 'Tất cả';
-    return brandData?.find(b => b._id === selectedBrandId)?.name || 'Tất cả';
-  };
+  const getSelectedBrandName = () => selectedBrandId === 'all'
+    ? 'Tất cả'
+    : brandData?.find(b => b._id === selectedBrandId)?.name || 'Tất cả';
+  
   const getSelectedCategoryName = () => {
     if (selectedCategoryId === 'all') return 'Tất cả';
+    
+    // Tìm trong main categories
     const cat = categoriesData?.find(c => c._id === selectedCategoryId);
     if (cat) return cat.name;
-    for (const arr of Object.values(subCategories)) {
-      const sub = arr.find(sc => sc._id === selectedCategoryId);
+    
+    // Tìm trong subcategories data
+    for (const subCats of Object.values(subCategoriesData)) {
+      const sub = subCats.find(sc => sc._id === selectedCategoryId);
       if (sub) return sub.name;
     }
+    
     return 'Tất cả';
   };
 
@@ -170,11 +233,11 @@ export default function ProductCategory() {
       <div
         key={product._id}
         className="bg-white min-h-[400px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        onClick={() => navigate(`/products/${product.slug}`)}
+        onClick={() => {navigate(`/products/${product.slug}`)}}
       >
         <div className="relative w-full h-full overflow-hidden">
           <img
-            src={product.image[0] || "/placeholder.svg"}
+            src={product.image?.[0] || "/placeholder.svg"}
             alt={product.name}
             className="w-full h-full object-cover rounded"
           />
@@ -195,10 +258,10 @@ export default function ProductCategory() {
           <h3 className="text-sm font-medium mb-2 truncate">{product.name}</h3>
           <div className="flex justify-between items-center">
             <span className="text-red-500 font-bold">
-              {product.variation && product.variation[0]?.salePrice.toLocaleString('vi-VN')}đ
+              {product.variation && product.variation[0]?.salePrice?.toLocaleString('vi-VN')}đ
             </span>
             <span className="text-gray-400 line-through">
-              {product.variation && product.variation[0]?.regularPrice.toLocaleString('vi-VN')}đ
+              {product.variation && product.variation[0]?.regularPrice?.toLocaleString('vi-VN')}đ
             </span>
           </div>
         </div>
@@ -247,7 +310,8 @@ export default function ProductCategory() {
             )}
           </ul>
         </div>
-        {/* Danh mục */}
+        
+        {/* Danh mục - PHẦN ĐƯỢC SỬA */}
         <div className="mb-6 bg-gray-100 relative p-5">
           <h2 className="text-base font-bold uppercase">DANH MỤC</h2>
           <div className="relative mb-4">
@@ -259,7 +323,8 @@ export default function ProductCategory() {
               onClick={() => {
                 handleCategorySelect('all');
                 setShowAllCategories(!showAllCategories);
-                setExpandedCategory(null);
+                setExpandedCategorySlug(null);
+                updateUrlParams('all', undefined, null);
               }}
               className={`flex justify-between items-center cursor-pointer px-2 py-2 transition-all duration-200 
                 ${selectedCategoryId === 'all' ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"}`}
@@ -272,48 +337,68 @@ export default function ProductCategory() {
             {isLoadingCategories ? (
               <li className="px-2 py-3 text-gray-500">Đang tải...</li>
             ) : (
-              showAllCategories && categoriesData?.map((cat: any) => {
-                const hasSubCategories = cat.subCategories?.length > 0;
-                return (
-                  <React.Fragment key={cat._id}>
-                    <li
-                      onClick={() => {
-                        if (hasSubCategories) {
-                          handleExpandCategory(cat._id);
-                        } else {
-                          handleCategorySelect(cat._id);
-                        }
-                      }}
-                      className={`flex justify-between items-center cursor-pointer px-2 py-2 transition-all duration-200 
-                        ${selectedCategoryId === cat._id ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"}`}
-                    >
-                      <span className="text-gray-800 text-sm font-medium">{cat.name}</span>
-                      {hasSubCategories && (
-                        <span className="text-gray-400 text-base font-bold">
-                          {expandedCategory === cat._id ?
-                            <UpOutlined style={{ fontSize: '12px' }} /> :
-                            <DownOutlined style={{ fontSize: '12px' }} />
+              showAllCategories && categoriesData
+                ?.filter(cat => !cat.parentId)
+                ?.map((cat: any) => {
+                  const hasSubCategories = categoriesData.some(subCat => subCat.parentId === cat._id) || 
+                                         subCategoriesData[cat._id]?.length > 0;
+                  const isExpanded = expandedCategorySlug === cat.slug;
+                  
+                  return (
+                    <React.Fragment key={cat._id}>
+                      <li
+                        onClick={() => {
+                          if (hasSubCategories) {
+                            handleExpandCategory(cat._id);
+                          } else {
+                            handleCategorySelect(cat._id);
                           }
-                        </span>
+                        }}
+                        className={`flex justify-between items-center cursor-pointer px-2 py-2 transition-all duration-200 
+                          ${selectedCategoryId === cat._id ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"}`}
+                      >
+                        <span className="text-gray-800 text-sm font-medium">{cat.name}</span>
+                        {hasSubCategories && (
+                          <span className="text-gray-400 text-base font-bold">
+                            {isExpanded ? 
+                              <UpOutlined style={{ fontSize: '12px' }} /> :
+                              <DownOutlined style={{ fontSize: '12px' }} />
+                            }
+                          </span>
+                        )}
+                      </li>
+                      {/* CHỈ HIỂN THỊ SUBCATEGORIES KHI ĐƯỢC EXPAND */}
+                      {hasSubCategories && isExpanded && (
+                        <ul className="pl-6 bg-gray-50">
+                          {/* Hiển thị từ subCategoriesData state */}
+                          {subCategoriesData[cat._id]?.map((subCat: any) => (
+                            <li
+                              key={subCat._id}
+                              onClick={() => handleCategorySelect(subCat._id)}
+                              className={`flex items-center cursor-pointer px-2 py-2 transition-all duration-200 
+                                ${selectedCategoryId === subCat._id ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"}`}
+                            >
+                              <span className="text-left text-gray-600 text-sm">{subCat.name}</span>
+                            </li>
+                          )) ||
+                          /* Fallback: hiển thị từ categoriesData nếu có */
+                          categoriesData
+                            ?.filter(subCat => subCat.parentId === cat._id)
+                            ?.map((subCat: any) => (
+                              <li
+                                key={subCat._id}
+                                onClick={() => handleCategorySelect(subCat._id)}
+                                className={`flex items-center cursor-pointer px-2 py-2 transition-all duration-200 
+                                  ${selectedCategoryId === subCat._id ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"}`}
+                              >
+                                <span className="text-left text-gray-600 text-sm">{subCat.name}</span>
+                              </li>
+                            ))}
+                        </ul>
                       )}
-                    </li>
-                    {hasSubCategories && expandedCategory === cat._id && Array.isArray(subCategories[cat._id]) && (
-                      <ul className="pl-6 bg-gray-50">
-                        {subCategories[cat._id].map((subCat: any) => (
-                          <li
-                            key={subCat._id}
-                            onClick={() => handleCategorySelect(subCat._id)}
-                            className={`flex items-center cursor-pointer px-2 py-2 transition-all duration-200 
-                              ${selectedCategoryId === subCat._id ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"}`}
-                          >
-                            <span className="text-left text-gray-600 text-sm">{subCat.name}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </React.Fragment>
-                );
-              })
+                    </React.Fragment>
+                  );
+                })
             )}
           </ul>
         </div>
@@ -357,6 +442,7 @@ export default function ProductCategory() {
           </div>
         </div>
       </Sider>
+      
       {/* Content */}
       <Content className="bg-white">
         <div className="bg-white p-4 mb-6 space-y-4">
@@ -371,7 +457,10 @@ export default function ProductCategory() {
             </span>
             {(selectedCategoryId !== 'all' || selectedBrandId !== 'all') && (
               <button
-                onClick={() => updateUrlParams('all', 'all')}
+                onClick={() => {
+                  updateUrlParams('all', 'all', null);
+                  setExpandedCategorySlug(null);
+                }}
                 className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm hover:bg-red-200 transition-colors"
               >
                 Xóa tất cả bộ lọc
@@ -399,6 +488,7 @@ export default function ProductCategory() {
             </button>
           </div>
         </div>
+        
         {/* Filter Drawer */}
         <Drawer
           title="Bộ lọc sản phẩm"
@@ -459,7 +549,8 @@ export default function ProductCategory() {
               <button
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 onClick={() => {
-                  updateUrlParams('all', 'all');
+                  updateUrlParams('all', 'all', null);
+                  setExpandedCategorySlug(null);
                   setIsFilterVisible(false);
                 }}
               >
