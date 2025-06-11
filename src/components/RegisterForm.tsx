@@ -44,34 +44,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess }) => {
         setShowNewPassword(!showNewPassword);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (formData.password !== formData.confirmPassword) {
-            alert('Mật khẩu xác nhận không khớp.');
-            return;
-        }
-        setLoading(true);
-
-        try {
-            await register(
-                formData.fullName,
-                formData.email,
-                formData.password,
-                formData.confirmPassword
-            );
-            onRegisterSuccess(formData.email);
-            Swal.fire({
-                title: "Good job!",
-                text: "Đăng ký thành công, Nhập mã OTP để xác thực",
-                icon: "success"
-            });
-        } catch (error: any) {
-            console.error('Đăng ký thất bại:', error);
-            alert(error.message || 'Đăng ký thất bại!');
-        } finally {
-            setLoading(false);
-        }
-    };
+    
     const steps = [
         {
             title: "Email của bạn",
