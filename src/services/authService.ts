@@ -98,3 +98,25 @@ export const ChangePassword = async (email: string, password: string) => {
     throw new Error('Lỗi kết nối hoặc server gặp sự cố. Vui lòng thử lại sau.');
   }
 };
+
+export const sendOtpToEmail = async (email: string) => {
+  try {
+    const response = await axios.post('/forgot-password', {
+      email,
+    });
+    if (response.status === 200) {
+      return { success: true, message: 'Mã OTP đã được gửi vào email.' };
+    } else {
+      throw new Error(response.data.message || 'Không thể gửi OTP. Vui lòng thử lại.');
+    }
+  } catch (error: any) {
+    console.error('Lỗi gửi OTP:', error);
+    if (error.response) {
+      return { success: false, message: error.response.data.message || 'Có lỗi xảy ra khi gửi OTP' };
+    } else if (error.request) {
+      return { success: false, message: 'Không có phản hồi từ server. Vui lòng kiểm tra kết nối.' };
+    } else {
+      return { success: false, message: `Lỗi: ${error.message}` };
+    }
+  }
+};
