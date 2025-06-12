@@ -49,17 +49,30 @@ export default function ProductCategory() {
   // State để lưu subcategories của từng parent category
   const [subCategoriesData, setSubCategoriesData] = useState<{ [parentId: string]: ICategory[] }>({});
 
+  // Filter dữ liệu chỉ lấy những item có isActive = true
+  const activeProducts = useMemo(() => {
+    return productsData?.docs?.filter(product => product.isActive) || [];
+  }, [productsData?.docs]);
+
+  const activeBrands = useMemo(() => {
+    return brandData?.filter(brand => brand.isActive) || [];
+  }, [brandData]);
+
+  const activeCategories = useMemo(() => {
+    return categoriesData?.filter(category => category.isActive) || [];
+  }, [categoriesData]);
+
   // Helper chuyển đổi id <-> slug
   const getIdFromSlug = (slug: string, type: 'brand' | 'category'): string => {
     if (slug === 'all') return 'all';
-    if (type === 'brand') return brandData?.find(b => b.slug === slug)?._id?.toString() || 'all';
+    if (type === 'brand') return activeBrands?.find(b => b.slug === slug)?._id?.toString() || 'all';
     
     // Tìm trong main categories (chỉ categories không có parentId)
-    const cat = categoriesData?.find(c => c.slug === slug && !c.parentId);
+    const cat = activeCategories?.find(c => c.slug === slug && !c.parentId);
     if (cat) return cat._id.toString();
     
     // Tìm trong subcategories (categories có parentId)
-    const subCat = categoriesData?.find(c => c.slug === slug && c.parentId);
+    const subCat = activeCategories?.find(c => c.slug === slug && c.parentId);
     if (subCat) return subCat._id.toString();
     
     return 'all';
@@ -67,15 +80,15 @@ export default function ProductCategory() {
 
   const getSlugFromId = (id: string, type: 'brand' | 'category'): string => {
     if (id === 'all') return 'all';
-    if (type === 'brand') return brandData?.find(b => b._id === id)?.slug || 'all';
+    if (type === 'brand') return activeBrands?.find(b => b._id === id)?.slug || 'all';
     
-    // Tìm trong tất cả categories
-    const cat = categoriesData?.find(c => c._id === id);
+    // Tìm trong tất cả active categories
+    const cat = activeCategories?.find(c => c._id === id);
     if (cat) return cat.slug;
     
-    // Tìm trong subcategories data
+    // Tìm trong subcategories data (chỉ active)
     for (const subCats of Object.values(subCategoriesData)) {
-      const sub = subCats.find(sc => sc._id === id);
+      const sub = subCats.filter(sc => sc.isActive).find(sc => sc._id === id);
       if (sub) return sub.slug;
     }
     
@@ -86,8 +99,8 @@ export default function ProductCategory() {
   const findParentCategorySlug = (subcategoryId: string): string | null => {
     // Tìm trong subcategories data
     for (const [parentId, subCats] of Object.entries(subCategoriesData)) {
-      if (subCats.some(sub => sub._id === subcategoryId)) {
-        const parent = categoriesData?.find(c => c._id === parentId);
+      if (subCats.filter(sc => sc.isActive).some(sub => sub._id === subcategoryId)) {
+        const parent = activeCategories?.find(c => c._id === parentId);
         return parent?.slug || null;
       }
     }
@@ -97,11 +110,11 @@ export default function ProductCategory() {
   // Lấy id thực tế để filter
   const selectedCategoryId = useMemo(
     () => getIdFromSlug(selectedCategorySlug, 'category'),
-    [selectedCategorySlug, categoriesData, subCategoriesData]
+    [selectedCategorySlug, activeCategories, subCategoriesData]
   );
   const selectedBrandId = useMemo(
     () => getIdFromSlug(selectedBrandSlug, 'brand'),
-    [selectedBrandSlug, brandData]
+    [selectedBrandSlug, activeBrands]
   );
 
   // Cập nhật URL khi chọn filter
@@ -137,31 +150,31 @@ export default function ProductCategory() {
       }
     }
     if (selectedBrandSlug !== 'all') setShowAllBrands(true);
-  }, [selectedCategorySlug, selectedBrandSlug, categoriesData, subCategoriesData]);
+  }, [selectedCategorySlug, selectedBrandSlug, activeCategories, subCategoriesData]);
 
   // Khôi phục expanded state từ URL parameter
   useEffect(() => {
-    if (expandedParam && categoriesData) {
+    if (expandedParam && activeCategories) {
       setExpandedCategorySlug(expandedParam);
     }
-  }, [expandedParam, categoriesData]);
+  }, [expandedParam, activeCategories]);
 
-  // Lọc sản phẩm
+  // Lọc sản phẩm (chỉ từ activeProducts)
   const filteredProducts = useMemo(() => {
-    if (!productsData?.docs) return [];
-    return productsData.docs.filter(product => {
+    if (!activeProducts) return [];
+    return activeProducts.filter(product => {
       const matchCat = selectedCategoryId === 'all' || product.categoryId === selectedCategoryId;
       const matchBrand = selectedBrandId === 'all' || product.brandId === selectedBrandId;
       const matchSearch = !searchQuery || product.name.toLowerCase().includes(searchQuery.toLowerCase());
       return matchCat && matchBrand && matchSearch;
     });
-  }, [productsData?.docs, selectedCategoryId, selectedBrandId, searchQuery]);
+  }, [activeProducts, selectedCategoryId, selectedBrandId, searchQuery]);
 
-  // Sản phẩm mới
+  // Sản phẩm mới (chỉ từ activeProducts)
   const featuredProducts = useMemo(() => {
     if (!newProductsData?.docs) return [];
     return newProductsData.docs
-      .filter(product => product.isActive)
+      .filter(product => product.isActive) // Chỉ lấy sản phẩm active
       .slice(0, 3)
       .map(product => ({
         id: product._id,
@@ -172,7 +185,7 @@ export default function ProductCategory() {
       }));
   }, [newProductsData?.docs]);
 
-  // Lấy subcategory khi expand
+  // Lấy subcategory khi expand (chỉ active)
   const handleExpandCategory = async (parentId: string) => {
     const parentSlug = getSlugFromId(parentId, 'category');
     if (expandedCategorySlug === parentSlug) {
@@ -189,12 +202,14 @@ export default function ProductCategory() {
       try {
         // Gọi API để lấy subcategories - bạn cần tạo service này
         // const subCats = await categoryService.getAllSubCategory(parentId);
-        // setSubCategoriesData(prev => ({ ...prev, [parentId]: subCats }));
+        // setSubCategoriesData(prev => ({ ...prev, [parentId]: subCats.filter(sc => sc.isActive) }));
         
-        // Tạm thời sử dụng data có sẵn từ categoriesData nếu có
-        const parentCategory = categoriesData?.find(c => c._id === parentId);
+        // Tạm thời sử dụng data có sẵn từ activeCategories nếu có
+        const parentCategory = activeCategories?.find(c => c._id === parentId);
         if (parentCategory && parentCategory.subCategories) {
-          setSubCategoriesData(prev => ({ ...prev, [parentId]: parentCategory.subCategories || [] }));
+          // Chỉ lấy subcategories có isActive = true
+          const activeSubCategories = parentCategory.subCategories.filter(sc => sc.isActive);
+          setSubCategoriesData(prev => ({ ...prev, [parentId]: activeSubCategories }));
         }
       } catch (error) {
         console.error('Error fetching subcategories:', error);
@@ -205,18 +220,18 @@ export default function ProductCategory() {
   // Hiển thị tên filter
   const getSelectedBrandName = () => selectedBrandId === 'all'
     ? 'Tất cả'
-    : brandData?.find(b => b._id === selectedBrandId)?.name || 'Tất cả';
+    : activeBrands?.find(b => b._id === selectedBrandId)?.name || 'Tất cả';
   
   const getSelectedCategoryName = () => {
     if (selectedCategoryId === 'all') return 'Tất cả';
     
     // Tìm trong main categories
-    const cat = categoriesData?.find(c => c._id === selectedCategoryId);
+    const cat = activeCategories?.find(c => c._id === selectedCategoryId);
     if (cat) return cat.name;
     
-    // Tìm trong subcategories data
+    // Tìm trong subcategories data (chỉ active)
     for (const subCats of Object.values(subCategoriesData)) {
-      const sub = subCats.find(sc => sc._id === selectedCategoryId);
+      const sub = subCats.filter(sc => sc.isActive).find(sc => sc._id === selectedCategoryId);
       if (sub) return sub.name;
     }
     
@@ -273,7 +288,7 @@ export default function ProductCategory() {
     <Layout className="min-h-screen bg-white px-3 md:px-8 lg:px-11 py-6 font-roboto">
       {/* Sider */}
       <Sider width={250} className="bg-white p-4 lg:mr-8 mb-6 lg:mb-0" breakpoint="lg" collapsedWidth="0">
-        {/* Thương hiệu */}
+        {/* Thương hiệu - chỉ hiển thị active brands */}
         <div className="mb-6 bg-gray-100 relative p-5">
           <h2 className="text-base font-bold uppercase">THƯƠNG HIỆU</h2>
           <div className="relative mb-4">
@@ -297,7 +312,7 @@ export default function ProductCategory() {
             {isLoadingBrand ? (
               <li className="px-2 py-3 text-gray-500">Đang tải...</li>
             ) : (
-              showAllBrands && brandData?.map((brand: any) => (
+              showAllBrands && activeBrands?.map((brand: any) => (
                 <li
                   key={brand._id}
                   onClick={() => handleBrandSelect(brand._id)}
@@ -311,7 +326,7 @@ export default function ProductCategory() {
           </ul>
         </div>
         
-        {/* Danh mục - PHẦN ĐƯỢC SỬA */}
+        {/* Danh mục - chỉ hiển thị active categories */}
         <div className="mb-6 bg-gray-100 relative p-5">
           <h2 className="text-base font-bold uppercase">DANH MỤC</h2>
           <div className="relative mb-4">
@@ -337,18 +352,18 @@ export default function ProductCategory() {
             {isLoadingCategories ? (
               <li className="px-2 py-3 text-gray-500">Đang tải...</li>
             ) : (
-              showAllCategories && categoriesData
+              showAllCategories && activeCategories
                 ?.filter(cat => !cat.parentId)
                 ?.map((cat: any) => {
-                  const hasSubCategories = categoriesData.some(subCat => subCat.parentId === cat._id) || 
-                                         subCategoriesData[cat._id]?.length > 0;
+                  const hasActiveSubCategories = activeCategories.some(subCat => subCat.parentId === cat._id && subCat.isActive) || 
+                                               (subCategoriesData[cat._id]?.filter(sc => sc.isActive)?.length > 0);
                   const isExpanded = expandedCategorySlug === cat.slug;
                   
                   return (
                     <React.Fragment key={cat._id}>
                       <li
                         onClick={() => {
-                          if (hasSubCategories) {
+                          if (hasActiveSubCategories) {
                             handleExpandCategory(cat._id);
                           } else {
                             handleCategorySelect(cat._id);
@@ -358,7 +373,7 @@ export default function ProductCategory() {
                           ${selectedCategoryId === cat._id ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"}`}
                       >
                         <span className="text-gray-800 text-sm font-medium">{cat.name}</span>
-                        {hasSubCategories && (
+                        {hasActiveSubCategories && (
                           <span className="text-gray-400 text-base font-bold">
                             {isExpanded ? 
                               <UpOutlined style={{ fontSize: '12px' }} /> :
@@ -367,11 +382,11 @@ export default function ProductCategory() {
                           </span>
                         )}
                       </li>
-                      {/* CHỈ HIỂN THỊ SUBCATEGORIES KHI ĐƯỢC EXPAND */}
-                      {hasSubCategories && isExpanded && (
+                      {/* CHỈ HIỂN THỊ ACTIVE SUBCATEGORIES KHI ĐƯỢC EXPAND */}
+                      {hasActiveSubCategories && isExpanded && (
                         <ul className="pl-6 bg-gray-50">
-                          {/* Hiển thị từ subCategoriesData state */}
-                          {subCategoriesData[cat._id]?.map((subCat: any) => (
+                          {/* Hiển thị từ subCategoriesData state - chỉ active */}
+                          {subCategoriesData[cat._id]?.filter(subCat => subCat.isActive)?.map((subCat: any) => (
                             <li
                               key={subCat._id}
                               onClick={() => handleCategorySelect(subCat._id)}
@@ -381,9 +396,9 @@ export default function ProductCategory() {
                               <span className="text-left text-gray-600 text-sm">{subCat.name}</span>
                             </li>
                           )) ||
-                          /* Fallback: hiển thị từ categoriesData nếu có */
-                          categoriesData
-                            ?.filter(subCat => subCat.parentId === cat._id)
+                          /* Fallback: hiển thị từ activeCategories nếu có */
+                          activeCategories
+                            ?.filter(subCat => subCat.parentId === cat._id && subCat.isActive)
                             ?.map((subCat: any) => (
                               <li
                                 key={subCat._id}
@@ -402,7 +417,7 @@ export default function ProductCategory() {
             )}
           </ul>
         </div>
-        {/* Sản phẩm mới ra mắt */}
+        {/* Sản phẩm mới ra mắt - chỉ hiển thị active products */}
         <div className="mb-6 bg-gray-100 relative p-5">
           <h2 className="text-base font-bold mb-4">Các sản phẩm mới ra mắt</h2>
           <div className="relative mb-4">
