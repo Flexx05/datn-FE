@@ -47,7 +47,7 @@ const getStrength = (pwd: string) => {
 };
 
 const ChangePassword: React.FC = () => {
-  const { user } = useAuth(); // Gọi useAuth đúng trong function component
+  const { user } = useAuth(); 
   const [formData, setFormData] = useState<PasswordForm>({
     current: "",
     newPwd: "",
@@ -80,20 +80,20 @@ const ChangePassword: React.FC = () => {
       // Gọi API đổi mật khẩu (Giả sử có một API như ChangePassword)
       const response = await ChangePassword(user?.email ?? "", formData.newPwd);
       console.log(response)
-    //   if (response.success) {
-    //     Swal.fire({
-    //       title: "Thành công!",
-    //       text: response.message,
-    //       icon: "success",
-    //     });
-    //     resetForm();
-    //   } else {
-    //     Swal.fire({
-    //       title: "Lỗi",
-    //       text: response.message,
-    //       icon: "error",
-    //     });
-    //   }
+      //   if (response.success) {
+      //     Swal.fire({
+      //       title: "Thành công!",
+      //       text: response.message,
+      //       icon: "success",
+      //     });
+      //     resetForm();
+      //   } else {
+      //     Swal.fire({
+      //       title: "Lỗi",
+      //       text: response.message,
+      //       icon: "error",
+      //     });
+      //   }
     } catch (error: any) {
       Swal.fire({
         title: "Lỗi",
@@ -128,7 +128,7 @@ const ChangePassword: React.FC = () => {
     <div className="max-w-6xl mx-auto py-8 px-4 md:px-6 flex flex-col md:flex-row gap-8">
       {/* Sidebar */}
       <aside className="w-full md:w-56 space-y-3 mb-6 md:mb-0">
-        <SidebarLink active />
+        <SidebarLink />
       </aside>
 
       {/* Main content */}

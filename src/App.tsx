@@ -15,6 +15,7 @@ import  DetailBlog  from "./pages/DetailBlog";
 import { UserInfo } from "./pages/Userinfo";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import ChangePassword from "./pages/ChangePassword";
+import Order from "./pages/Order";
 
 
 
@@ -35,6 +36,7 @@ const App: React.FC = () => {
           <Route path="/blogs/detail" element={< DetailBlog />} />
           <Route path="/user/info" element={<ProtectedRoute>< UserInfo /></ProtectedRoute>} />
           <Route path="/user/changepassword" element={<ProtectedRoute>< ChangePassword /></ProtectedRoute>} />
+          <Route path="/user/order" element={<ProtectedRoute>< Order /></ProtectedRoute>} />
         </Route>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
