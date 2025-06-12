@@ -3,15 +3,28 @@ import Background from "../assets/image/shoes.svg";
 import { useRef, useState } from "react";
 import { Steps } from "antd";
 import Swal from "sweetalert2";
-import { sendOtpToEmail } from "../services/authService"; // Import dịch vụ gửi email
+import { sendOtpToEmail, verifyOtpToEmail, resetPassword } from "../services/authService";
+import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 export const ForgotPassword = () => {
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false); // Trạng thái loading
+  const [loading, setLoading] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);  // State cho việc xác thực OTP
+  const [password, setPassword] = useState("");  // Mật khẩu mới
+  const [confirmPassword, setConfirmPassword] = useState("");  // Xác nhận mật khẩu mới
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 
   document.title = "Quên mật khẩu";
+
+  const [show, setShow] = useState<{ newPwd: boolean; confirm: boolean }>({
+    newPwd: false,
+    confirm: false,
+  });
+
+  const toggleShow = (field: keyof typeof show) => () =>
+    setShow((s) => ({ ...s, [field]: !s[field] }));
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -22,8 +35,10 @@ export const ForgotPassword = () => {
       e.target.value = "";
       return;
     }
+
+    // Dùng index đã được truyền vào, không cần currentIndex
     if (value && index < inputsRef.current.length - 1) {
-      inputsRef.current[index + 1]?.focus();
+      inputsRef.current[index + 1]?.focus(); // Sử dụng index thay vì currentIndex
     }
   };
 
@@ -37,12 +52,57 @@ export const ForgotPassword = () => {
   };
 
   const handleSendEmail = async () => {
-    setLoading(true); // Bắt đầu loading
+    setLoading(true);
     const response = await sendOtpToEmail(email);
-    setLoading(false); // Dừng loading
+    setLoading(false);
 
     if (response.success) {
-      setStep(1);  // Chuyển sang bước nhập OTP
+      setStep(1);
+    } else {
+      Swal.fire({
+        title: "Lỗi",
+        text: response.message,
+        icon: "error",
+      });
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const verifyOtp = async () => {
+    setOtpLoading(true);  // Bật trạng thái loading cho OTP
+    const otp = inputsRef.current.map((input) => input?.value).join(""); // Lấy OTP từ các input
+    const response = await verifyOtpToEmail(email, otp);
+    setOtpLoading(false);  // Tắt loading
+
+    if (response.success) {
+      setStep(2);  // Chuyển sang bước 2 - Nhập mật khẩu mới
+    } else {
+      Swal.fire({
+        title: "Lỗi",
+        text: response.message,
+        icon: "error",
+      });
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (password !== confirmPassword) {
+      Swal.fire({
+        title: "Lỗi",
+        text: "Mật khẩu và mật khẩu nhập lại không khớp",
+        icon: "error",
+      });
+      return;
+    }
+    const response = await resetPassword(email, password, confirmPassword);
+    if (response.success) {
+      Swal.fire({
+        title: "Thành công",
+        text: "Mật khẩu đã được thay đổi thành công",
+        icon: "success",
+      });
+      navigate('/login');
     } else {
       Swal.fire({
         title: "Lỗi",
@@ -65,6 +125,7 @@ export const ForgotPassword = () => {
               <Steps current={step} size="small" style={{ marginBottom: 24 }}>
                 <Steps.Step title="Nhập Email" />
                 <Steps.Step title="Nhập mã xác nhận" />
+                <Steps.Step title="Đặt lại mật khẩu" />
               </Steps>
 
               {step === 0 && (
@@ -81,18 +142,10 @@ export const ForgotPassword = () => {
                   <button
                     className="btn-auth rounded"
                     onClick={handleSendEmail}
-                    disabled={!/\S+@\S+\.\S+/.test(email) || loading} // Disable button khi đang loading
+                    disabled={!/\S+@\S+\.\S+/.test(email) || loading}
                   >
-                    {loading ? "Đang gửi..." : "Tiếp tục"} {/* Hiển thị trạng thái loading */}
+                    {loading ? "Đang gửi..." : "Tiếp tục"}
                   </button>
-                  {loading && (
-                    <div className="loading-spinner">
-                      {/* Hiển thị vòng quay tải */}
-                      <div className="spinner-border" role="status">
-                        <span className="sr-only">Loading...</span>
-                      </div>
-                    </div>
-                  )}
                 </>
               )}
 
@@ -122,15 +175,63 @@ export const ForgotPassword = () => {
                       ))}
                     </div>
                   </div>
-                  <div className="flex justify-between">
-                    <button className="btn-auth rounded">Xác nhận</button>
+                  <button
+                    className="btn-auth rounded"
+                    onClick={verifyOtp}
+                    disabled={otpLoading}
+                  >
+                    {otpLoading ? "Đang xác thực..." : "Xác nhận"}
+                  </button>
+                </>
+              )}
+
+              {step === 2 && (
+                <>
+                  <div className="text-left mb-2 text-sm text-gray-500">
+                    Nhập mật khẩu mới
                   </div>
-                  <span className="text-center block mt-8">
-                    Bạn chưa nhận được mã?{" "}
-                    <a className="text-blue-600 font-bold" href="/register">
-                      Gửi lại mã OTP
-                    </a>
-                  </span>
+                  <div className="input-group mb-4 relative">
+                    <input
+                      required
+                      type={show.newPwd ? "text" : "password"}
+                      className="input"
+                      placeholder="Mật khẩu mới"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleShow("newPwd")}
+                      className="absolute top-1/2 right-4 -translate-y-1/2 w-5 h-5 text-gray-500"
+                    >
+                      {show.newPwd ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+
+                  <div className="input-group mb-4 relative">
+                    <input
+                      required
+                      type={show.confirm ? "text" : "password"}
+                      className="input"
+                      placeholder="Nhập lại mật khẩu"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleShow("confirm")}
+                      className="absolute top-1/2 right-4 -translate-y-1/2 w-5 h-5 text-gray-500"
+                    >
+                      {show.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+
+                  <button
+                    className="btn-auth rounded"
+                    onClick={handleResetPassword}
+                  >
+                    Đặt lại mật khẩu
+                  </button>
                 </>
               )}
             </div>

@@ -120,3 +120,47 @@ export const sendOtpToEmail = async (email: string) => {
     }
   }
 };
+
+
+export const verifyOtpToEmail = async (email: string, otp: string) => {
+  try {
+    const response = await axios.post('/verify-reset-otp', { email, otp });
+    if (response.status === 200) {
+      return { success: true, message: 'Xác thực OTP thành công' };
+    } else {
+      throw new Error(response.data.message || 'OTP chưa đúng. Vui lòng thử lại.');
+    }
+  } catch (error: any) {
+    console.error('Lỗi gửi OTP:', error);
+
+    if (error.response) {
+      return { success: false, message: error.response.data.message || 'Có lỗi xảy ra khi gửi OTP' };
+    } else if (error.request) {
+      return { success: false, message: 'Không có phản hồi từ server. Vui lòng kiểm tra kết nối.' };
+    } else {
+      return { success: false, message: `Lỗi: ${error.message}` };
+    }
+  }
+};
+
+export const resetPassword = async (email: string, newPassword: string ,confirmPassword :string ) => {
+  try {
+    const response = await axios.post('/reset-password', { email, newPassword  ,confirmPassword});
+
+    if (response.status === 200) {
+      return { success: true, message: 'Đặt lại mật khẩu thành công' };
+    } else {
+      throw new Error(response.data.message || 'Không thể reset mật khẩu');
+    }
+  } catch (error: any) {
+    console.error('Lỗi reset mật khẩu:', error);
+
+    if (error.response) {
+      return { success: false, message: error.response.data.message || 'Có lỗi xảy ra khi reset mật khẩu' };
+    } else if (error.request) {
+      return { success: false, message: 'Không có phản hồi từ server. Vui lòng kiểm tra kết nối.' };
+    } else {
+      return { success: false, message: `Lỗi: ${error.message}` };
+    }
+  }
+};

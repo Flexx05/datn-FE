@@ -1,4 +1,4 @@
-import { CheckSquareFilled, CloseSquareFilled, CloseSquareOutlined, EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
+import {EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import Button from "antd/es/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";

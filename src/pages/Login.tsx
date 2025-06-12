@@ -1,7 +1,7 @@
 import { AuthHeader } from "../components/authHeader";
 import Background from '../assets/image/shoes.svg';
 import Facebook from '../assets/image/facebook.svg';
-import Google from '../assets/image/google.svg';
+// import Google from '../assets/image/google.svg';
 import { Link, useNavigate } from "react-router-dom";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import { useState } from "react";
@@ -83,7 +83,7 @@ const Login: React.FC = () => {
                                         <input type="checkbox" id="check" />
                                         <label htmlFor="check" className="form-text ml-2">Duy trì đăng nhập</label>
                                     </div>
-                                    <a href="#" className="form-text">Quên mật khẩu</a>
+                                    <a href="/forgot-password" className="form-text">Quên mật khẩu</a>
                                 </div>
                             </form>
                             <div className="line">
