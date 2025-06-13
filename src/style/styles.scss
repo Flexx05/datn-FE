@@ -1,6 +1,6 @@
 @use "./variables";
 @use "./mixins";
-
+@import 'primeicons/primeicons.css';
 //
 
 //
@@ -617,6 +617,7 @@ input:valid ~ label {
   //     border-top-left-radius: 5px;
   //     border-bottom-left-radius: 5px;
   // }
+
 }
 .changepass {
   position: absolute;

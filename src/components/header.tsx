@@ -5,6 +5,11 @@ import Bag from '../assets/image/bag.svg';
 import BagDark from '../assets/image/bag-dark.svg';
 
 import { SearchOutlined, UserOutlined } from "@ant-design/icons";
+import { useAuth } from "../auth/AuthContext ";
+
+import Avatar from "antd/es/avatar";
+import Button from "antd/es/button";
+import Popover from "antd/es/popover";
 
 interface HeaderProps {
   isHome: boolean;
@@ -12,8 +17,9 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
-
+  const { user, logout } = useAuth();
   const location = useLocation();
+
 
   useEffect(() => {
     if (location.pathname !== "/") return; // Chỉ áp dụng trên trang chủ
@@ -35,6 +41,19 @@ const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location.pathname]);
 
+
+  const popoverContent = (
+    <div className="min-w-[180px]">
+      <p className="font-semibold text-center">
+        <Link to={"user/info"}>Thông tin tài khoản</Link>
+      </p>
+      <Button type="text" danger block onClick={logout}>
+        Đăng xuất
+      </Button>
+    </div>
+  );
+
+
   return (
     <header className={isHome ? 'active' : ''}>
       <div className="container mx-auto">
@@ -52,11 +71,30 @@ const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
             <li><a href="">Liên hệ</a></li>
             <li className='right-item'>
               <div className='header-icon'><a href=""><SearchOutlined /></a></div>
-              <div className='header-icon'><a href=""><UserOutlined /></a></div>
+              <div className='header-icon'>
+                {user ? (
+                  <Popover
+                    content={popoverContent}
+                    trigger="click"
+                    placement="bottomRight">
+                    <Avatar
+                      size={30}
+                      src={user?.avatar || undefined}
+                      style={{ backgroundColor: "#7265e6", verticalAlign: "middle" }}
+                    >
+                      {!user?.avatar && user?.fullName?.charAt(0)?.toUpperCase()}
+                    </Avatar>
+                  </Popover>
+                ) : (
+                <a href="/login"><UserOutlined /></a>
+            )}
+
+              </div>
+
               <div className='header-icon'>
                 <a href="" className='cart-icon' data-count="10">
-                  <img src={Bag} className="bag-light"/>
-                  <img src={BagDark} className="bag-dark"/>
+                  <img src={Bag} className="bag-light" />
+                  <img src={BagDark} className="bag-dark" />
                   <small className='cart-sml'>Giỏ hàng</small>
                 </a></div>
             </li>
