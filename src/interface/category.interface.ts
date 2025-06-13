@@ -7,6 +7,7 @@ export interface ICategory {
   description?: string;
   isActive: boolean;
   children?: ICategory[];
+  subCategories?: ISubCategory[];
 }
 
 export interface ISubCategory extends ICategory {

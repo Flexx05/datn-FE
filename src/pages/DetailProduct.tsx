@@ -73,19 +73,19 @@ export default function DetailProduct() {
   const price = firstActiveVariation?.salePrice ?? firstActiveVariation?.regularPrice
   const inStock = product?.variation?.some((v: IVariation) => v.stock > 0);
 
+  // Lọc sản phẩm cùng danh mục - chỉ hiển thị sản phẩm có isActive = true
   const filteredRelatedProducts = React.useMemo(() => {
     if (!relatedProducts?.docs) return [];
     return relatedProducts.docs
-      .filter(p => p.categoryId === product?.categoryId && p._id !== product?._id)
+      .filter(p => p.isActive && p.categoryId === product?.categoryId && p._id !== product?._id)
       .slice(0, 3);
   }, [relatedProducts?.docs, product]);
 
+  // Lọc sản phẩm mới - chỉ hiển thị sản phẩm có isActive = true
   const filteredNewProducts = React.useMemo(() => {
     if (!newProducts?.docs) return [];
     return newProducts.docs
-      .filter(
-        p => p.isActive && p.slug !== slug
-      )
+      .filter(p => p.isActive && p.slug !== slug)
       .slice(0, 3);
   }, [newProducts?.docs, slug]);
 
@@ -281,6 +281,10 @@ export default function DetailProduct() {
                 <div className="flex justify-center py-8">
                   <Spin tip="Đang tải sản phẩm liên quan..." />
                 </div>
+              ) : filteredRelatedProducts.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  Không có sản phẩm cùng danh mục nào khác
+                </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {filteredRelatedProducts.map((product) => (
@@ -369,6 +373,10 @@ export default function DetailProduct() {
               {isLoadingNew ? (
                 <div className="flex justify-center py-4">
                   <Spin size="small" tip="Đang tải..." />
+                </div>
+              ) : filteredNewProducts.length === 0 ? (
+                <div className="text-center py-4 text-gray-500 text-sm">
+                  Không có sản phẩm mới nào
                 </div>
               ) : (
                 <div className="space-y-4">

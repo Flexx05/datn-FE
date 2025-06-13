@@ -26,13 +26,19 @@ const Home: React.FC = () => {
 
   const products = data?.docs || [];
 
-  // Lọc sản phẩm dựa theo selectedId
-  const filteredProducts = useMemo(() => {
-    if (!products.length) return [];
+  // Lọc chỉ các sản phẩm có isActive = true
+  const activeProducts = useMemo(() => {
+    return products.filter(product => product.isActive);
+  }, [products]);
 
-    return products.filter(product => {
+  // Lọc sản phẩm dựa theo selectedId từ các sản phẩm đã active
+  const filteredProducts = useMemo(() => {
+    if (!activeProducts.length) return [];
+
+    return activeProducts.filter(product => {
       if (selectedId === '2') {
-        return product.isActive;
+        // Sản phẩm mới - đã được lọc isActive ở trên
+        return true;
       }
 
       if (selectedId === '3') {
@@ -42,7 +48,7 @@ const Home: React.FC = () => {
 
       return true;
     });
-  }, [products, selectedId]);
+  }, [activeProducts, selectedId]);
 
   const handleCheckboxChange = (id: string) => {
     setSelectedId(prev => (prev === id ? '1' : id));
@@ -264,7 +270,7 @@ const Home: React.FC = () => {
                       {product.variation && product.variation[0]?.salePrice.toLocaleString('vi-VN')}đ
                     </span>
                     <span className="text-gray-400 line-through">
-                      {product.variation && product.variation[0]?.regularPrice  .toLocaleString('vi-VN')}đ
+                      {product.variation && product.variation[0]?.regularPrice.toLocaleString('vi-VN')}đ
                     </span>
                   </div>
                 </div>
@@ -315,7 +321,7 @@ const Home: React.FC = () => {
           ) : error ? (
             <div className="text-red-500">Có lỗi xảy ra khi tải sản phẩm</div>
           ) : (
-            products.map((product: any) => (
+            activeProducts.map((product: any) => (
               <div
                 key={product._id}
                 className="bg-white min-h-[300px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
