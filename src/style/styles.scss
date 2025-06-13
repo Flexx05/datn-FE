@@ -100,7 +100,7 @@ header {
   }
 
   .header-icon::before {
-    background: #000;
+    background: #fff;
   }
 
   &::before {
@@ -530,7 +530,7 @@ footer {
 .input:focus,
 input:valid {
   outline: none;
-  border: 1.5px solid #1a73e8;
+  border: 1.5px solid #9B9B9B;
 }
 
 .input:focus ~ label,
