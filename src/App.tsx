@@ -16,9 +16,7 @@ import { UserInfo } from "./pages/Userinfo";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import ChangePassword from "./pages/ChangePassword";
 import Order from "./pages/Order";
-
-
-
+import DetailOrder from "./pages/DetailOrder";
 
 const App: React.FC = () => {
   return (
@@ -28,8 +26,9 @@ const App: React.FC = () => {
           <Route index element={<Home />} />
           <Route path="/about" element={<About />} />
           {/* Products */}
-          <Route path="/products" element={< ProductCategory />} />
-          <Route path="/products/detail" element={< DetailProduct />} />
+          <Route path="/products/brand/:brandSlug/category/:categorySlug" element={<ProductCategory />} />
+          <Route path="/products" element={<ProductCategory />} />
+          <Route path="/products/:slug" element={< DetailProduct />} />
           <Route path="/products/cart" element={< DetailCart />} />
           {/* Blogs */}
           <Route path="/blogs" element={< BlogCategory />} />
@@ -42,7 +41,10 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword/>} />
+          <Route path="/products/detailorder" element = {<DetailOrder/>} />
+
         </Route>
+
       </Routes>
     </Router>
   );
