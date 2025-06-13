@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 
 interface User {
   _id: string;
@@ -25,6 +26,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
+
+  const navigate = useNavigate(); 
+
+  useEffect(() => {
+    if (user && !user.isActive) {
+      logout();
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   const login = (token: string, userData: User) => {
     localStorage.setItem("token", token);

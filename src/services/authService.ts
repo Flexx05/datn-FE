@@ -143,9 +143,9 @@ export const verifyOtpToEmail = async (email: string, otp: string) => {
   }
 };
 
-export const resetPassword = async (email: string, newPassword: string ,confirmPassword :string ) => {
+export const resetPassword = async (email: string, newPassword: string, confirmPassword: string) => {
   try {
-    const response = await axios.post('/reset-password', { email, newPassword  ,confirmPassword});
+    const response = await axios.post('/reset-password', { email, newPassword, confirmPassword });
 
     if (response.status === 200) {
       return { success: true, message: 'Đặt lại mật khẩu thành công' };
@@ -164,3 +164,28 @@ export const resetPassword = async (email: string, newPassword: string ,confirmP
     }
   }
 };
+
+
+export const ChangeInfoUser = async (id: number, fullName: string, phone: string, address: string, token: string) => {
+  try {
+    const response = await axios.post('/admin/users/edit/', { id, fullName, phone, address, token });
+    if (response.data.success) {
+      return {
+        success: true,
+        data: response.data.data,
+        message: response.data.message,
+      };
+    } else {
+      return {
+        success: false,
+        message: response.data.message,
+      };
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      message: 'Lỗi khi cập nhật thông tin người dùng',
+      error: error.message,
+    };
+  }
+}

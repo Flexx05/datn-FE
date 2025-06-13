@@ -22,6 +22,9 @@ const AccountSettings: React.FC = () => {
         address: "",
     });
 
+
+    
+
     const handleChange =
         <K extends keyof AccountForm>(field: K) =>
             (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -95,6 +98,7 @@ const AccountSettings: React.FC = () => {
                                 placeholder="Email"
                                 className="w-full border border-gray-300 rounded-lg py-3 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value={form.email}
+                                disabled
                                 onChange={handleChange("email")}
                             />
                             <Pencil className="absolute top-1/2 -translate-y-1/2 right-4 w-5 h-5 text-gray-400 pointer-events-none" />
