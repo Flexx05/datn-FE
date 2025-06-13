@@ -20,7 +20,6 @@ export default function DetailProduct() {
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [isNavigating, setIsNavigating] = useState(false);
 
-  // Lấy sản phẩm theo slug
   const { data: product, isLoading: isLoadingProduct } = useQuery<any>({
     queryKey: ['product', slug],
     queryFn: () => slug ? productService.getProductBySlug(slug) : Promise.resolve(undefined),
@@ -60,7 +59,6 @@ export default function DetailProduct() {
     }, 300);
   };
 
-  // Lấy thuộc tính màu và size từ product
   const colorAttr = product?.attributes?.find((a: IProduct) => a.attributeName === "Màu sắc");
   const sizeAttr = product?.attributes?.find((a: IProduct) => a.attributeName === "Kích thước");
   const colors = colorAttr?.values || [];
@@ -70,10 +68,11 @@ export default function DetailProduct() {
   const mainImage = product?.image?.[0];
 
   const firstActiveVariation = product?.variation?.find((v: IVariation) => v.isActive) || product?.variation?.[0];
-  const price = firstActiveVariation?.salePrice ?? firstActiveVariation?.regularPrice
+  const displayPrice = firstActiveVariation?.salePrice > 0 
+    ? firstActiveVariation.salePrice 
+    : firstActiveVariation?.regularPrice;
   const inStock = product?.variation?.some((v: IVariation) => v.stock > 0);
 
-  // Lọc sản phẩm cùng danh mục - chỉ hiển thị sản phẩm có isActive = true
   const filteredRelatedProducts = React.useMemo(() => {
     if (!relatedProducts?.docs) return [];
     return relatedProducts.docs
@@ -81,14 +80,12 @@ export default function DetailProduct() {
       .slice(0, 3);
   }, [relatedProducts?.docs, product]);
 
-  // Lọc sản phẩm mới - chỉ hiển thị sản phẩm có isActive = true
   const filteredNewProducts = React.useMemo(() => {
     if (!newProducts?.docs) return [];
     return newProducts.docs
       .filter(p => p.isActive && p.slug !== slug)
       .slice(0, 3);
   }, [newProducts?.docs, slug]);
-
 
   return (
     <div className="container mx-auto max-w-7xl p-6 font-roboto">
@@ -98,12 +95,9 @@ export default function DetailProduct() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Main content */}
           <div className="md:col-span-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              {/* Hình ảnh */}
               <div key={product?._id} className="relative">
-                {/* Main image */}
                 <div className="aspect-square overflow-hidden rounded-lg">
                   <Image
                     src={selectedImage || mainImage || '/placeholder.jpg'}
@@ -112,7 +106,6 @@ export default function DetailProduct() {
                   />
                 </div>
 
-                {/* Thumbnail images */}
                 <div className="mt-4 grid grid-cols-4 gap-4">
                   {thumbnails.slice(0, 4).map((img: string, index: number) => (
                     <button
@@ -160,23 +153,19 @@ export default function DetailProduct() {
                 </div>
               </div>
 
-              {/* Thông tin sản phẩm */}
               <div>
                 <h1 className="text-2xl font-bold mb-2">{product?.name}</h1>
                 <div className="flex items-center mb-4">
                   <Rate disabled defaultValue={product?.averageRating || 0} />
                 </div>
                 <div className="text-3xl font-bold mb-4" style={{ color: '#8BC42D', border: 0 }}>
-                  {price.toLocaleString('vi-VN')}đ
+                  {displayPrice?.toLocaleString('vi-VN')}đ
                 </div>
                 <div className="space-y-2 text-gray-700 text-sm mb-6">
                   <div><strong>Tình trạng:</strong> {inStock ? "Còn hàng" : "Hết hàng"}</div>
-                  <div><strong>Mã số SP:</strong> {product?._id}</div>
                   <div><strong>Danh mục:</strong> {product?.categoryName}</div>
                   <div><strong>Thương hiệu:</strong> {product?.brandName}</div>
-                  {/* <div><strong>Từ khóa:</strong> {product?.attributes?.map((a: any) => a.values.join(', ')).join(', ')}</div> */}
                 </div>
-                {/* Chọn màu */}
                 <div className="mb-6">
                   <div className="font-semibold mb-2">MÀU:</div>
                   <div className="flex gap-3">
@@ -190,7 +179,6 @@ export default function DetailProduct() {
                     ))}
                   </div>
                 </div>
-                {/* Chọn size */}
                 <div className="mb-6">
                   <div className="font-semibold mb-2">SIZE:</div>
                   <Radio.Group
@@ -205,7 +193,6 @@ export default function DetailProduct() {
                     ))}
                   </Radio.Group>
                 </div>
-                {/* Số lượng và nút */}
                 <div className="flex items-center gap-4 mb-6">
                   <InputNumber
                     min={1}
@@ -271,7 +258,6 @@ export default function DetailProduct() {
               </Tabs>
             </div>
 
-            {/* Sản phẩm cùng danh mục */}
             <div className="related-products mt-16">
               <h2 className="text-2xl font-bold mb-6 border-b-2 border-orange-400 inline-block pb-2">
                 Sản phẩm cùng danh mục
@@ -287,55 +273,112 @@ export default function DetailProduct() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {filteredRelatedProducts.map((product) => (
-                    <div
-                      key={product._id}
-                      className="border p-4 rounded-lg hover:shadow-lg transition cursor-pointer"
-                      onClick={() => handleNavigateProduct(product.slug)}
-                    >
-                      <div className="relative aspect-[7/6] overflow-hidden">
-                        <img
-                          src={product.image[0]}
-                          alt={product.name}
-                          className="w-full h-full object-cover rounded"
-                        />
-                        {product.isActive && (
-                          <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-bl-md rounded-tr-md">
-                            Mới
-                          </span>
-                        )}
-                        {product.variation && product.variation[0]?.salePrice < product.variation[0]?.regularPrice && (
-                          <span className="absolute top-10 left-2 bg-red-500 text-white text-xs font-semibold px-1 py-1 rounded-bl-md rounded-tr-md">
-                            -{Math.round((1 - product.variation[0].salePrice / product.variation[0].regularPrice) * 100)}%
-                          </span>
-                        )}
-                      </div>
+                  {filteredRelatedProducts.map((product) => {
+                    const displayRelatedPrice = product.variation?.[0]?.salePrice > 0 
+                      ? product.variation[0].salePrice 
+                      : product.variation?.[0]?.regularPrice;
+                    const showRelatedDiscount = product.variation?.[0]?.salePrice > 0 && 
+                      product.variation[0].salePrice < product.variation[0].regularPrice;
+                    const relatedDiscountPercentage = showRelatedDiscount 
+                      ? Math.round((1 - product.variation[0].salePrice / product.variation[0].regularPrice) * 100)
+                      : 0;
 
-                      <div className="mt-4">
-                        <h3 className="text-sm font-semibold truncate">{product.name}</h3>
-                        <div className="flex justify-between items-center mt-1">
-                          <span className="text-red-500 font-bold">
-                            {(product.variation?.[0]?.salePrice ?? product.variation?.[0]?.regularPrice)?.toLocaleString('vi-VN')}đ
-                          </span>
-                          {product.variation?.[0]?.salePrice < product.variation?.[0]?.regularPrice && (
-                            <span className="text-gray-400 line-through text-xs ml-2">
-                              {product.variation?.[0]?.regularPrice.toLocaleString('vi-VN')}đ
+                    return (
+                      <div
+                        key={product._id}
+                        className="border p-4 rounded-lg hover:shadow-lg transition cursor-pointer"
+                        onClick={() => handleNavigateProduct(product.slug)}
+                      >
+                        <div className="relative aspect-[7/6] overflow-hidden">
+                          <img
+                            src={product.image[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover rounded"
+                          />
+                          {product.isActive && (
+                            <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-bl-md rounded-tr-md">
+                              Mới
+                            </span>
+                          )}
+                          {showRelatedDiscount && (
+                            <span className="absolute top-10 left-2 bg-red-500 text-white text-xs font-semibold px-1 py-1 rounded-bl-md rounded-tr-md">
+                              -{relatedDiscountPercentage}%
                             </span>
                           )}
                         </div>
+
+                        <div className="mt-4">
+                          <h3 className="text-sm font-semibold truncate">{product.name}</h3>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-red-500 font-bold">
+                              {displayRelatedPrice?.toLocaleString('vi-VN')}đ
+                            </span>
+                            {showRelatedDiscount && (
+                              <span className="text-gray-400 line-through text-xs ml-2">
+                                {product.variation?.[0]?.regularPrice.toLocaleString('vi-VN')}đ
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
 
+            <div className="mb-6">
+              <h2 className="text-base font-bold mb-4">Các sản phẩm mới ra mắt</h2>
+              <div className="relative mb-4">
+                <div className="h-1 w-20 bg-orange-400"></div>
+                <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+              </div>
+
+              {isLoadingNew ? (
+                <div className="flex justify-center py-4">
+                  <Spin size="small" tip="Đang tải..." />
+                </div>
+              ) : filteredNewProducts.length === 0 ? (
+                <div className="text-center py-4 text-gray-500 text-sm">
+                  Không có sản phẩm mới nào
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredNewProducts.map((product) => {
+                    const displayNewPrice = product.variation?.[0]?.salePrice > 0 
+                      ? product.variation[0].salePrice 
+                      : product.variation?.[0]?.regularPrice;
+
+                    return (
+                      <div
+                        key={product._id}
+                        className="flex space-x-3 border-b pb-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={() => handleNavigateProduct(product.slug)}
+                      >
+                        <div className="flex-shrink-0 w-16 h-16 overflow-hidden rounded">
+                          <img
+                            src={product.image[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-medium text-gray-900 truncate">
+                            {product.name}
+                          </h3>
+                          <p className="mt-1 text-sm font-medium text-red-500">
+                            {displayNewPrice?.toLocaleString('vi-VN')}đ
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Sidebar */}
           <Sider width={250} className="bg-white p-4">
-
-            {/* Thư mục */}
             <div className="mb-6 bg-gray-100 relative p-5">
               <h2 className="text-base font-bold uppercase ">THƯ MỤC</h2>
 
@@ -362,52 +405,6 @@ export default function DetailProduct() {
               </ul>
             </div>
 
-            {/* Sản phẩm mới */}
-            <div className="mb-6">
-              <h2 className="text-base font-bold mb-4">Các sản phẩm mới ra mắt</h2>
-              <div className="relative mb-4">
-                <div className="h-1 w-20 bg-orange-400"></div>
-                <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
-              </div>
-
-              {isLoadingNew ? (
-                <div className="flex justify-center py-4">
-                  <Spin size="small" tip="Đang tải..." />
-                </div>
-              ) : filteredNewProducts.length === 0 ? (
-                <div className="text-center py-4 text-gray-500 text-sm">
-                  Không có sản phẩm mới nào
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredNewProducts.map((product) => (
-                    <div
-                      key={product._id}
-                      className="flex space-x-3 border-b pb-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                      onClick={() => handleNavigateProduct(product.slug)}
-                    >
-                      <div className="flex-shrink-0 w-16 h-16 overflow-hidden rounded">
-                        <img
-                          src={product.image[0]}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-gray-900 truncate">
-                          {product.name}
-                        </h3>
-                        <p className="mt-1 text-sm font-medium text-red-500">
-                          {product.variation?.[0]?.salePrice.toLocaleString('vi-VN')}đ
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Từ khóa */}
             <div>
               <h2 className="text-base font-bold mb-4 uppercase">TỪ KHÓA</h2>
               <div className="relative mb-4 ">
@@ -419,7 +416,7 @@ export default function DetailProduct() {
                   <a
                     key={label}
                     href="#"
-                    className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-700 cursor-pointer hover:bg-gray-100"
+                    className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-600 cursor-pointer hover:bg-gray-100"
                   >
                     {label}
                   </a>
