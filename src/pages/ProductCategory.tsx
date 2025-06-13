@@ -66,32 +66,32 @@ export default function ProductCategory() {
   const getIdFromSlug = (slug: string, type: 'brand' | 'category'): string => {
     if (slug === 'all') return 'all';
     if (type === 'brand') return activeBrands?.find(b => b.slug === slug)?._id?.toString() || 'all';
-    
+
     // Tìm trong main categories (chỉ categories không có parentId)
     const cat = activeCategories?.find(c => c.slug === slug && !c.parentId);
     if (cat) return cat._id.toString();
-    
+
     // Tìm trong subcategories (categories có parentId)
     const subCat = activeCategories?.find(c => c.slug === slug && c.parentId);
     if (subCat) return subCat._id.toString();
-    
+
     return 'all';
   };
 
   const getSlugFromId = (id: string, type: 'brand' | 'category'): string => {
     if (id === 'all') return 'all';
     if (type === 'brand') return activeBrands?.find(b => b._id === id)?.slug || 'all';
-    
+
     // Tìm trong tất cả active categories
     const cat = activeCategories?.find(c => c._id === id);
     if (cat) return cat.slug;
-    
+
     // Tìm trong subcategories data (chỉ active)
     for (const subCats of Object.values(subCategoriesData)) {
       const sub = subCats.filter(sc => sc.isActive).find(sc => sc._id === id);
       if (sub) return sub.slug;
     }
-    
+
     return 'all';
   };
 
@@ -193,17 +193,17 @@ export default function ProductCategory() {
       updateUrlParams(undefined, undefined, null);
       return;
     }
-    
+
     setExpandedCategorySlug(parentSlug);
     updateUrlParams(undefined, undefined, parentSlug);
-    
+
     // Fetch subcategories nếu chưa có
     if (!subCategoriesData[parentId]) {
       try {
         // Gọi API để lấy subcategories - bạn cần tạo service này
         // const subCats = await categoryService.getAllSubCategory(parentId);
         // setSubCategoriesData(prev => ({ ...prev, [parentId]: subCats.filter(sc => sc.isActive) }));
-        
+
         // Tạm thời sử dụng data có sẵn từ activeCategories nếu có
         const parentCategory = activeCategories?.find(c => c._id === parentId);
         if (parentCategory && parentCategory.subCategories) {
@@ -221,24 +221,23 @@ export default function ProductCategory() {
   const getSelectedBrandName = () => selectedBrandId === 'all'
     ? 'Tất cả'
     : activeBrands?.find(b => b._id === selectedBrandId)?.name || 'Tất cả';
-  
+
   const getSelectedCategoryName = () => {
     if (selectedCategoryId === 'all') return 'Tất cả';
-    
+
     // Tìm trong main categories
     const cat = activeCategories?.find(c => c._id === selectedCategoryId);
     if (cat) return cat.name;
-    
+
     // Tìm trong subcategories data (chỉ active)
     for (const subCats of Object.values(subCategoriesData)) {
       const sub = subCats.filter(sc => sc.isActive).find(sc => sc._id === selectedCategoryId);
       if (sub) return sub.name;
     }
-    
+
     return 'Tất cả';
   };
 
-  // Render sản phẩm
   const renderProducts = () => {
     if (isLoadingProducts) return <Spin size="large" className="col-span-full" />;
     if (filteredProducts.length === 0) {
@@ -247,37 +246,46 @@ export default function ProductCategory() {
     return filteredProducts.map((product: IProduct) => (
       <div
         key={product._id}
-        className="bg-white min-h-[400px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        onClick={() => {navigate(`/products/${product.slug}`)}}
+        className="bg-white min-h-[300px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+        onClick={() => { navigate(`/products/${product.slug}`) }}
       >
-        <div className="relative w-full h-full overflow-hidden">
+        <div className="relative w-full aspect-square overflow-hidden">
           <img
             src={product.image?.[0] || "/placeholder.svg"}
             alt={product.name}
-            className="w-full h-full object-cover rounded"
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            loading="lazy"
           />
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
+
+          <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
             {product.isActive && (
-              <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600">
+              <span className="text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600 shadow-sm">
                 MỚI
               </span>
             )}
             {product.variation && product.variation[0]?.salePrice < product.variation[0]?.regularPrice && (
-              <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-red-500">
+              <span className="text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-red-500 shadow-sm">
                 -{Math.round((1 - product.variation[0].salePrice / product.variation[0].regularPrice) * 100)}%
               </span>
             )}
           </div>
         </div>
-        <div className="p-4">
-          <h3 className="text-sm font-medium mb-2 truncate">{product.name}</h3>
-          <div className="flex justify-between items-center">
-            <span className="text-red-500 font-bold">
+
+        {/* Nội dung sản phẩm */}
+        <div className="p-4 flex-1 flex flex-col justify-between">
+          <h3 className="text-sm font-medium mb-2 line-clamp-2 leading-tight">
+            {product.name}
+          </h3>
+
+          <div className="flex justify-between items-center mt-auto">
+            <span className="text-red-500 font-bold text-lg">
               {product.variation && product.variation[0]?.salePrice?.toLocaleString('vi-VN')}đ
             </span>
-            <span className="text-gray-400 line-through">
-              {product.variation && product.variation[0]?.regularPrice?.toLocaleString('vi-VN')}đ
-            </span>
+            {product.variation && product.variation[0]?.salePrice < product.variation[0]?.regularPrice && (
+              <span className="text-gray-400 line-through text-sm">
+                {product.variation && product.variation[0]?.regularPrice?.toLocaleString('vi-VN')}đ
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -325,7 +333,7 @@ export default function ProductCategory() {
             )}
           </ul>
         </div>
-        
+
         {/* Danh mục - chỉ hiển thị active categories */}
         <div className="mb-6 bg-gray-100 relative p-5">
           <h2 className="text-base font-bold uppercase">DANH MỤC</h2>
@@ -355,10 +363,10 @@ export default function ProductCategory() {
               showAllCategories && activeCategories
                 ?.filter(cat => !cat.parentId)
                 ?.map((cat: any) => {
-                  const hasActiveSubCategories = activeCategories.some(subCat => subCat.parentId === cat._id && subCat.isActive) || 
-                                               (subCategoriesData[cat._id]?.filter(sc => sc.isActive)?.length > 0);
+                  const hasActiveSubCategories = activeCategories.some(subCat => subCat.parentId === cat._id && subCat.isActive) ||
+                    (subCategoriesData[cat._id]?.filter(sc => sc.isActive)?.length > 0);
                   const isExpanded = expandedCategorySlug === cat.slug;
-                  
+
                   return (
                     <React.Fragment key={cat._id}>
                       <li
@@ -375,7 +383,7 @@ export default function ProductCategory() {
                         <span className="text-gray-800 text-sm font-medium">{cat.name}</span>
                         {hasActiveSubCategories && (
                           <span className="text-gray-400 text-base font-bold">
-                            {isExpanded ? 
+                            {isExpanded ?
                               <UpOutlined style={{ fontSize: '12px' }} /> :
                               <DownOutlined style={{ fontSize: '12px' }} />
                             }
@@ -396,19 +404,19 @@ export default function ProductCategory() {
                               <span className="text-left text-gray-600 text-sm">{subCat.name}</span>
                             </li>
                           )) ||
-                          /* Fallback: hiển thị từ activeCategories nếu có */
-                          activeCategories
-                            ?.filter(subCat => subCat.parentId === cat._id && subCat.isActive)
-                            ?.map((subCat: any) => (
-                              <li
-                                key={subCat._id}
-                                onClick={() => handleCategorySelect(subCat._id)}
-                                className={`flex items-center cursor-pointer px-2 py-2 transition-all duration-200 
+                            /* Fallback: hiển thị từ activeCategories nếu có */
+                            activeCategories
+                              ?.filter(subCat => subCat.parentId === cat._id && subCat.isActive)
+                              ?.map((subCat: any) => (
+                                <li
+                                  key={subCat._id}
+                                  onClick={() => handleCategorySelect(subCat._id)}
+                                  className={`flex items-center cursor-pointer px-2 py-2 transition-all duration-200 
                                   ${selectedCategoryId === subCat._id ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"}`}
-                              >
-                                <span className="text-left text-gray-600 text-sm">{subCat.name}</span>
-                              </li>
-                            ))}
+                                >
+                                  <span className="text-left text-gray-600 text-sm">{subCat.name}</span>
+                                </li>
+                              ))}
                         </ul>
                       )}
                     </React.Fragment>
@@ -457,7 +465,7 @@ export default function ProductCategory() {
           </div>
         </div>
       </Sider>
-      
+
       {/* Content */}
       <Content className="bg-white">
         <div className="bg-white p-4 mb-6 space-y-4">
@@ -503,7 +511,7 @@ export default function ProductCategory() {
             </button>
           </div>
         </div>
-        
+
         {/* Filter Drawer */}
         <Drawer
           title="Bộ lọc sản phẩm"
