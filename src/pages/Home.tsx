@@ -53,7 +53,7 @@ const Home: React.FC = () => {
   const handleCheckboxChange = (id: string) => {
     setSelectedId(prev => (prev === id ? '1' : id));
   };
-  
+
   const banner = [
     { name: "HAGAN CORE TF LIGHT TOURING", slogan: "SKI BOOT LINERS" },
     { name: "HAGAN CORE TF LIGHT TOURING", slogan: "SKI BOOT LINERS" },
@@ -235,20 +235,21 @@ const Home: React.FC = () => {
           ) : (
             filteredProducts.map((product: IProduct) => (
               <div
-                key={product.slug}
+                key={product._id}
                 className="bg-white min-h-[300px] flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => {
                   navigate(`/products/${product.slug}`);
                 }}
               >
-                <div className="relative w-full h-full overflow-hidden">
+                <div className="relative w-full aspect-square overflow-hidden">
                   <img
                     src={product.image[0] || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-full object-cover rounded"
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    loading="lazy"
                   />
-                 <div className="absolute top-2 left-2 flex flex-col gap-1">
-                  {product.isActive && (
+                  <div className="absolute top-2 left-2 flex flex-col gap-1">
+                    {product.isActive && (
                       <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600">
                         MỚI
                       </span>
@@ -258,7 +259,7 @@ const Home: React.FC = () => {
                         -{Math.round((1 - product.variation[0].salePrice / product.variation[0].regularPrice) * 100)}%
                       </span>
                     )}
-                </div>
+                  </div>
                 </div>
 
                 <div className="p-4">
@@ -329,14 +330,15 @@ const Home: React.FC = () => {
                   navigate(`/products/${product.slug}`);
                 }}
               >
-                <div className="relative w-full h-full overflow-hidden">
+                <div className="relative aspect-square w-full h-full overflow-hidden">
                   <img
                     src={product.image[0] || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-full object-cover rounded"
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    loading="lazy"
                   />
-                 <div className="absolute top-2 left-2 flex flex-col gap-1">
-                  {product.isActive && (
+                  <div className="absolute top-2 left-2 flex flex-col gap-1">
+                    {product.isActive && (
                       <span className="m-0 text-xs px-2 py-0.5 rounded-bl-md rounded-tr-md text-white font-bold bg-green-600">
                         MỚI
                       </span>
@@ -346,7 +348,7 @@ const Home: React.FC = () => {
                         -{Math.round((1 - product.variation[0]?.salePrice / product.variation[0].regularPrice) * 100)}%
                       </span>
                     )}
-                </div>
+                  </div>
                 </div>
 
                 <div className="p-4">
