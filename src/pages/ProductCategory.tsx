@@ -28,11 +28,12 @@ export default function ProductCategory() {
     queryKey: ['products'],
     queryFn: productService.getAllProducts
   });
-  const { data: brandData, isLoading: isLoadingBrand } = useQuery<IBrand[]>({
+  const { data: brandData, isLoading: isLoadingBrand } = useQuery<{docs:IBrand[]}>({
     queryKey: ['brands'],
     queryFn: brandService.getAllBrands
   });
-  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery<ICategory[]>({
+  console.log('brandData:', brandData)
+  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery<{docs:ICategory[]}>({
     queryKey: ['categories'],
     queryFn: categoryService.getAllCategories
   });
@@ -48,11 +49,11 @@ export default function ProductCategory() {
   }, [productsData?.docs]);
 
   const activeBrands = useMemo(() => {
-    return brandData?.filter(brand => brand.isActive) || [];
+    return brandData?.docs?.filter(brand => brand.isActive) || [];
   }, [brandData]);
 
   const activeCategories = useMemo(() => {
-    return categoriesData?.filter(category => category.isActive) || [];
+    return categoriesData?.docs.filter(category => category.isActive) || [];
   }, [categoriesData]);
 
   const getIdFromSlug = (slug: string, type: 'brand' | 'category'): string => {

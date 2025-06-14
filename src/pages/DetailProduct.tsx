@@ -1,17 +1,23 @@
 import { HeartFilled, HeartOutlined, ShareAltOutlined, ShoppingCartOutlined, ShoppingOutlined } from "@ant-design/icons";
-import { Spin, Button, Image, InputNumber, Layout, Radio, Rate, Tabs } from "antd";
-import { useQuery } from '@tanstack/react-query';
+import { Spin, Button, Image, InputNumber, Layout, Radio, Rate, Tabs, message } from "antd";
+import { useQuery, useQueryClient } from '@tanstack/react-query'; // Thêm useQueryClient
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { IProduct, IVariation } from '../interface/product.interface';
 import { productService } from '../services/product.service';
+import { cartService } from '../services/cart.service';
+import { useAuth } from '../auth/AuthContext ';
 
 const { Sider } = Layout;
 const { TabPane } = Tabs;
 
 export default function DetailProduct() {
+  console.log(localStorage.getItem('token'));
+  
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const queryClient = useQueryClient(); // Thêm queryClient
   const [color, setColor] = useState<string>("");
   const [size, setSize] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
@@ -86,6 +92,35 @@ export default function DetailProduct() {
       .filter(p => p.isActive && p.slug !== slug)
       .slice(0, 3);
   }, [newProducts?.docs, slug]);
+
+  // Hàm thêm sản phẩm vào giỏ hàng
+  const handleAddToCart = async () => {
+    if (!user) {
+      message.warning('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
+      navigate('/login');
+      return;
+    }
+
+    if (!size || !color) {
+      message.error('Vui lòng chọn màu sắc và kích thước');
+      return;
+    }
+
+    const cartItem = {
+      productId: product?._id,
+      variantId: firstActiveVariation?._id,
+      quantity: quantity,
+    };
+
+    try {
+      await cartService.addToCart(cartItem);
+      message.success('Thêm vào giỏ hàng thành công!');
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    } catch (error) {
+      console.error('Lỗi khi thêm vào giỏ hàng:', error);
+      message.error('Thêm vào giỏ hàng thất bại. Vui lòng thử lại!');
+    }
+  };
 
   return (
     <div className="container mx-auto max-w-7xl p-6 font-roboto">
@@ -206,6 +241,7 @@ export default function DetailProduct() {
                     size="large"
                     icon={<ShoppingCartOutlined />}
                     className="bg-yellow-400 hover:bg-yellow-500 border-0"
+                    onClick={handleAddToCart}
                   >
                     Thêm vào giỏ
                   </Button>
@@ -289,7 +325,7 @@ export default function DetailProduct() {
                         className="border p-4 rounded-lg hover:shadow-lg transition cursor-pointer"
                         onClick={() => handleNavigateProduct(product.slug)}
                       >
-                        <div className="relative aspect-[7/6] overflow-hidden">
+                        <div className="relative aspect-square overflow-hidden">
                           <img
                             src={product.image[0]}
                             alt={product.name}
@@ -325,6 +361,34 @@ export default function DetailProduct() {
                   })}
                 </div>
               )}
+            </div>
+          </div>
+
+          <Sider width={250} className="bg-white p-4">
+            <div className="mb-6 bg-gray-100 relative p-5">
+              <h2 className="text-base font-bold uppercase ">THƯ MỤC</h2>
+
+              <div className="relative mb-4 ">
+                <div className="h-1 w-20 bg-orange-400"></div>
+                <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+              </div>
+
+              <ul className="divide-y divide-gray-200 w-full">
+                {Array(5).fill(0).map((_, index) => {
+                  const key = `category-${index}`;
+                  return (
+                    <li
+                      key={key}
+                      onClick={() => setSelectedCategory(key)}
+                      className={`flex justify-between items-center cursor-pointer px-2 py-3 transition-all duration-200 ${selectedCategory === key ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"
+                        }`}
+                    >
+                      <span className="text-gray-800 text-sm font-medium">Tin khuyến mãi</span>
+                      <span className="text-gray-400 text-base font-bold">+</span>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
 
             <div className="mb-6">
@@ -375,34 +439,6 @@ export default function DetailProduct() {
                   })}
                 </div>
               )}
-            </div>
-          </div>
-
-          <Sider width={250} className="bg-white p-4">
-            <div className="mb-6 bg-gray-100 relative p-5">
-              <h2 className="text-base font-bold uppercase ">THƯ MỤC</h2>
-
-              <div className="relative mb-4 ">
-                <div className="h-1 w-20 bg-orange-400"></div>
-                <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
-              </div>
-
-              <ul className="divide-y divide-gray-200 w-full">
-                {Array(5).fill(0).map((_, index) => {
-                  const key = `category-${index}`;
-                  return (
-                    <li
-                      key={key}
-                      onClick={() => setSelectedCategory(key)}
-                      className={`flex justify-between items-center cursor-pointer px-2 py-3 transition-all duration-200 ${selectedCategory === key ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"
-                        }`}
-                    >
-                      <span className="text-gray-800 text-sm font-medium">Tin khuyến mãi</span>
-                      <span className="text-gray-400 text-base font-bold">+</span>
-                    </li>
-                  );
-                })}
-              </ul>
             </div>
 
             <div>
