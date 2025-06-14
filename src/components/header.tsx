@@ -71,6 +71,14 @@ const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
             <li><a href="">Liên hệ</a></li>
             <li className='right-item'>
               <div className='header-icon'><a href=""><SearchOutlined /></a></div>
+              
+              <div className='header-icon'>
+                <a href="/cart" className='cart-icon' data-count="10">
+                  <img src={Bag} className="bag-light" />
+                  <img src={BagDark} className="bag-dark" />
+                </a>
+              </div>
+              
               <div className='header-icon'>
                 {user ? (
                   <Popover
@@ -86,17 +94,10 @@ const Header: React.FC<HeaderProps> = ({ isHome, isPage }) => {
                     </Avatar>
                   </Popover>
                 ) : (
-                <a href="/login"><UserOutlined /></a>
-            )}
+                  <a href="/login"><UserOutlined /></a>
+                )}
 
               </div>
-
-              <div className='header-icon'>
-                <a href="" className='cart-icon' data-count="10">
-                  <img src={Bag} className="bag-light" />
-                  <img src={BagDark} className="bag-dark" />
-                  <small className='cart-sml'>Giỏ hàng</small>
-                </a></div>
             </li>
           </ul>
         </div>
