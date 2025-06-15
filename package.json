@@ -33,6 +33,7 @@
     "react-sweetalert2": "^0.6.0",
     "react-toastify": "^11.0.5",
     "sass": "^1.89.1",
+    "socket.io-client": "^4.8.1",
     "sweetalert2": "^11.22.0"
   },
   "devDependencies": {
