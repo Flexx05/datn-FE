@@ -3,16 +3,19 @@ import axios from "axios";
 axios.defaults.baseURL = 'http://localhost:8080/api/';
 axios.defaults.withCredentials = true;
 
-export interface User {
+interface User {
   _id: string;
   fullName: string;
   email: string;
   avatar: string | null;
   role: string;
   isActive: boolean;
+  phone: string | null;       
+  address: string | null;  
   createdAt: string;
   updatedAt: string;
 }
+
 
 export interface LoginResponse {
   message: string;
@@ -165,10 +168,24 @@ export const resetPassword = async (email: string, newPassword: string, confirmP
   }
 };
 
-
-export const ChangeInfoUser = async (id: number, fullName: string, phone: string, address: string, token: string) => {
+export const ChangeInfoUser = async (
+  id: string,
+  fullName: string,
+  phone: string,
+  address: string,
+  token: string
+) => {
   try {
-    const response = await axios.post('/admin/users/edit/', { id, fullName, phone, address, token });
+    const response = await axios.patch(
+      `/admin/users/edit/${id}`,
+      { fullName, phone, address },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     if (response.data.success) {
       return {
         success: true,
@@ -184,8 +201,61 @@ export const ChangeInfoUser = async (id: number, fullName: string, phone: string
   } catch (error: any) {
     return {
       success: false,
-      message: 'Lỗi khi cập nhật thông tin người dùng',
+      message: "Lỗi khi cập nhật thông tin người dùng",
       error: error.message,
     };
   }
-}
+};
+
+export const getUserInfo = async (id: string) => {
+  try {
+    const response = await axios.get(`/admin/users/id/${id}`);
+
+    if (response.status === 200) {
+      return {
+        success: true,
+        data: response.data,
+      };
+    } else {
+      return {
+        success: false,
+        message: "Không thể lấy thông tin người dùng",
+      };
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      message: "Lỗi khi lấy thông tin người dùng",
+      error: error.message,
+    };
+  }
+};
+
+export const userChangePass = async (
+  id: string,
+  passwordOld: string,
+  passwordNew: string,
+  token: string
+) => {
+  try {
+    const response = await axios.patch(
+      `/admin/users/${id}/update-password`,
+      {
+        passwordOld,
+        passwordNew,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || "Lỗi khi đổi mật khẩu",
+    };
+  }
+};

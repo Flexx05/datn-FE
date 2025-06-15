@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; 
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   _id: string;
@@ -8,6 +8,8 @@ interface User {
   avatar: string | null;
   role: string;
   isActive: boolean;
+  phone: string | null;       
+  address: string | null;  
   createdAt: string;
   updatedAt: string;
 }
@@ -16,6 +18,7 @@ interface AuthContextType {
   user: User | null;
   login: (token: string, user: User) => void;
   logout: () => void;
+  updateUser: (newData: Partial<User>) => void;
   isAuthenticated: boolean;
 }
 
@@ -27,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return stored ? JSON.parse(stored) : null;
   });
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user && !user.isActive) {
@@ -48,8 +51,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
+  const updateUser = (newData: Partial<User>) => {
+    if (!user) return;
+    const updatedUser = { ...user, ...newData };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        updateUser,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
